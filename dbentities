@@ -1,0 +1,18 @@
+CREATE TABLE gifs (
+    id BIGSERIAL PRIMARY KEY,
+    gif_url TEXT UNIQUE NOT NULL,
+    tenor_id TEXT,
+    popularity INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE image_hash_mappings (
+    id BIGSERIAL PRIMARY KEY,
+    image_hash BIGINT NOT NULL,
+    gif_id BIGINT REFERENCES gifs(id),
+    similarity_score FLOAT,
+    search_keywords TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_image_hash ON image_hash_mappings(image_hash);

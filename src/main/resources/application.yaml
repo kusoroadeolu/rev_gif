@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: RevGif
+    allowed-file-formats:
+      - image/gif
+      - image/jpeg
+      - image/png
+      - image/webp
+    bit-resolution: 64
+    frame_nums: 4
+
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    password: password
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/revgif
+
+  data:
+    jdbc:
+      repositories:
+        enabled: true
+
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10 #10MB max size
