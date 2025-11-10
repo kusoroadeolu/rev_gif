@@ -25,7 +25,7 @@ public class Gif {
     private long pHash;
     private LocalDateTime createdAt;
 
-    public Gif(String gifUrl, String tenorId, long pHash, String searchKeywords, String name){
+    public Gif(String gifUrl, String tenorId, Long pHash, String searchKeywords, String name){
         this.gifUrl = gifUrl;
         this.tenorId = tenorId;
         this.name = name;
@@ -38,7 +38,7 @@ public class Gif {
         return new Gif();
     }
 
-    public Gif id(Long id) {
+    public Gif id(long id) {
         this.id = id;
         return this;
     }

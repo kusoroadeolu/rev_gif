@@ -14,5 +14,5 @@ import java.util.Set;
 public class AppConfigProperties {
     private Set<String> allowedFileFormats;
     private int bitResolution;
-    private int frameNums;
+    private int expectedFrames;
 }

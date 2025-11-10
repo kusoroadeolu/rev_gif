@@ -7,7 +7,7 @@ spring:
       - image/png
       - image/webp
     bit-resolution: 64
-    frame_nums: 4
+    expected_frames: 4
 
 
   datasource:
@@ -21,8 +21,7 @@ spring:
       repositories:
         enabled: true
 
-
   servlet:
     multipart:
-      enabled: true
-      max-file-size: 10 #10MB max size
+      max-file-size: 100MB #10MB max size
+      max-request-size: 100MB

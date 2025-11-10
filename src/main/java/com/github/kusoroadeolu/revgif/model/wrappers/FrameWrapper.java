@@ -1,4 +1,4 @@
-package com.github.kusoroadeolu.revgif.model;
+package com.github.kusoroadeolu.revgif.model.wrappers;
 
 import java.awt.image.BufferedImage;
 

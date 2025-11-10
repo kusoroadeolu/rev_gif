@@ -1,4 +1,4 @@
-package com.github.kusoroadeolu.revgif.model;
+package com.github.kusoroadeolu.revgif.model.wrappers;
 
 import dev.brachtendorf.jimagehash.hash.Hash;
 

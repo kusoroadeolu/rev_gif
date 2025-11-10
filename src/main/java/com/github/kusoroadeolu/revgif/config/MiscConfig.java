@@ -4,7 +4,6 @@ import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
 import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,7 +22,7 @@ public class MiscConfig {
     }
 
     @Bean(destroyMethod = "shutdown")
-    public ExecutorService pExecutorService(){
+    public ExecutorService workStealingExecutorService(){
         return Executors.newWorkStealingPool();
     }
 
