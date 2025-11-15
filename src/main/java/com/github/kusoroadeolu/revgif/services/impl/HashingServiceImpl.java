@@ -1,7 +1,7 @@
 package com.github.kusoroadeolu.revgif.services.impl;
 
-import com.github.kusoroadeolu.revgif.model.wrappers.FrameWrapper;
-import com.github.kusoroadeolu.revgif.model.wrappers.HashWrapper;
+import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;
+import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 import com.github.kusoroadeolu.revgif.services.HashingService;
 import dev.brachtendorf.jimagehash.hash.Hash;
 import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
 @Component
 @Slf4j
@@ -21,23 +19,20 @@ import java.util.concurrent.ExecutorService;
 public class HashingServiceImpl implements HashingService {
 
     private final HashingAlgorithm hasher;
-    private final ExecutorService workStealingExecutorService;
 
     @Override
-    public CompletableFuture<List<HashWrapper>> hashFrames(@NonNull List<FrameWrapper> frames){
-        return CompletableFuture.supplyAsync(() -> {
+    public List<HashWrapper> hashFrames(@NonNull List<FrameWrapper> frames){
             final List<HashWrapper> hws = new ArrayList<>();
             FrameWrapper fw;
             for (FrameWrapper frame : frames) {
                 fw = frame;
                 final Hash hash = this.hasher.hash(fw.image());
-                final HashWrapper w = new HashWrapper(fw.frameIdx(), hash);
+                final HashWrapper w = new HashWrapper(fw, hash.getHashValue().longValue());
                 hws.add(w);
-                log.info("Added hash at idx: {}, hash: {}", w.frameIdx(), w.hash().getHashValue());
+                log.info("Added hash at idx: {}, hash: {}", w.frameWrapper().frameIdx(), w.hash());
             }
 
             return hws;
-        }, this.workStealingExecutorService);
     }
 
 }

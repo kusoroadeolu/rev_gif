@@ -6,7 +6,11 @@ import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -24,6 +28,11 @@ public class MiscConfig {
     @Bean(destroyMethod = "shutdown")
     public ExecutorService workStealingExecutorService(){
         return Executors.newWorkStealingPool();
+    }
+
+    @Bean
+    public Map<UUID, SseEmitter> emitters(){
+        return new ConcurrentHashMap<>();
     }
 
     @Bean

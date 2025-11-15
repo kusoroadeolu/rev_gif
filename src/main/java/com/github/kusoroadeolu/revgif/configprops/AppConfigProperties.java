@@ -15,4 +15,6 @@ public class AppConfigProperties {
     private Set<String> allowedFileFormats;
     private int bitResolution;
     private int expectedFrames;
+    private int strictHammingThreshold;
+    private int lenientHammingThreshold;
 }

@@ -7,8 +7,9 @@ spring:
       - image/png
       - image/webp
     bit-resolution: 64
-    expected_frames: 4
-
+    expected_frames: 4 # To save costs lol
+    strict-hamming-threshold: 5
+    lenient-hamming-threshold: 10
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -25,3 +26,30 @@ spring:
     multipart:
       max-file-size: 100MB #10MB max size
       max-request-size: 100MB
+
+api:
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+    prompt: In not more than 7 words, describe the main action or emotion in this image as a GIF search query. Respond with ONLY the search terms, no other text
+    model: gemini-2.5-flash
+    retry-attempts: 3
+    status-codes:    #status codes to retry for
+      - 503
+    initial-delay: 1000.0
+    max-delay: 3000.0
+    max-conns: 32
+    max-conns-per-host: 8
+
+  tenor:
+    api-key: ${TENOR_API_KEY}
+    base-url: https://tenor.googleapis.com/v2/search?<parameters>
+    search-filter: sticker #For both static and animated gifs
+    content-filter: low
+    media-filter: gif, tinygif #Only gifs are needed
+    limit: 5
+
+
+date-time-pattern: yyyy-MM-dd HH:mm:ss
+
+
+
