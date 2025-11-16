@@ -5,5 +5,5 @@ import lombok.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ValidatorService {
-    FileWrapper validateFile(MultipartFile file);
+    FileWrapper validateFile(byte[] b);
 }

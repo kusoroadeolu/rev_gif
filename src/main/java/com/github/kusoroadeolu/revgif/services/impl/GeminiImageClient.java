@@ -41,7 +41,7 @@ public class GeminiImageClient implements ImageClient {
                     .build();
 
             final Content content = Content.fromParts(textPart, imgPart);
-            final GenerateContentResponse description = geminiClient.models.generateContent(
+            final GenerateContentResponse description = this.geminiClient.models.generateContent(
                         this.geminiConfigProperties.model(),
                         content,
                         GenerateContentConfig.builder().tools(googleSearchTool).build()
@@ -55,7 +55,7 @@ public class GeminiImageClient implements ImageClient {
 
     }
 
-    //Helper method to convert a buf image to byes
+    //Helper method to convert a buf image to bytes
     private static byte[] toBytes(BufferedImage image) throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, DEFAULT_FORMAT, baos);

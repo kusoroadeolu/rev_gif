@@ -1,9 +1,7 @@
 package com.github.kusoroadeolu.revgif;
 
-import com.github.kusoroadeolu.revgif.model.Frame;
-import com.github.kusoroadeolu.revgif.model.Media;
 import com.github.kusoroadeolu.revgif.repos.FrameRepository;
-import com.github.kusoroadeolu.revgif.repos.MediaRepository;
+import com.github.kusoroadeolu.revgif.repos.GifRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,7 +24,7 @@ public class RevGifApplication {
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(MediaRepository mediaRepository, FrameRepository frameRepository){
+    public CommandLineRunner commandLineRunner(GifRepository gifRepository, FrameRepository frameRepository){
         return args -> {
 
 //            Frame f =
@@ -36,13 +34,13 @@ public class RevGifApplication {
 //                            .frameIdx(0)
 //                            .build();
 //
-//            Media m = mediaRepository.findById(1L).orElse(null);
+//            Gif m = gifRepository.findById(1L).orElse(null);
 //            m.getFrames().add(f);
-//            mediaRepository.save(m);
+//            gifRepository.save(m);
 
-//            Media m =
-//                mediaRepository.save(
-//                        Media.builder()
+//            Gif m =
+//                gifRepository.save(
+//                        Gif.builder()
 //                                .id(1L)
 //                                .format("png")
 //                                .tenorId("123456")

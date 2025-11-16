@@ -4,6 +4,7 @@ import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 import com.github.kusoroadeolu.revgif.dtos.DbQueryResult;
 import com.github.kusoroadeolu.revgif.repos.FrameRepository;
+import com.github.kusoroadeolu.revgif.services.FrameQueryService;
 import com.github.kusoroadeolu.revgif.services.ImageClient;
 import dev.brachtendorf.jimagehash.hash.Hash;
 import lombok.RequiredArgsConstructor;
@@ -11,20 +12,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class FrameQueryServiceImpl implements com.github.kusoroadeolu.revgif.services.FrameQueryService {
+public class FrameQueryServiceImpl implements FrameQueryService {
 
     private final FrameRepository frameRepository;
     private final AppConfigProperties appConfigProperties;
-    private final ImageClient client;
+    private final ImageClient imageClient;
     private final ApplicationEventPublisher eventPublisher;
 
     @Override
-    public void findSimilarMediaFrames(HashWrapper hashWrapper){
+    public Set<DbQueryResult> findGifsFromDb(HashWrapper hashWrapper){
         final Hash hash = hashWrapper.hash();
         final long hashVal = hash.getHashValue().longValue();
         final Set<DbQueryResult> res = this.frameRepository.compareByHash(hashVal,
@@ -33,12 +35,11 @@ public class FrameQueryServiceImpl implements com.github.kusoroadeolu.revgif.ser
 
 
         if(!res.isEmpty()){
-            //this.eventPublisher.publishEvent(res); //TODO Publish event to SSE emitter
-            return;
+            this.eventPublisher.publishEvent(res); //TODO Publish event to SSE emitter
+            return res;
         }
 
-        //client.getFrameDescription(hashWrapper);
-
+        return res;
     }
 
 }

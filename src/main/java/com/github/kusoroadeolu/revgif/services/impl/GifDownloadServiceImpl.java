@@ -11,35 +11,41 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GifDownloaderServiceImpl {
+public class GifDownloadServiceImpl implements com.github.kusoroadeolu.revgif.services.GifDownloadService {
 
     private final WebClient urlDownloadWebClient;
     private final LogMapper logMapper;
     private final GifSimilarityMatcher gifSimilarityMatcher;
+    private final static String CLASS_NAME = GifDownloadServiceImpl.class.getSimpleName();
 
     @EventListener
+    @Override
     public void downloadGifsFromUrl(BatchNormalizedGif result){
         log.info("Event Listener triggered ");
         final List<NormalizedGif> results = result.results();
         Flux.fromIterable(results)
                 .flatMap(nm ->
-                    this.urlDownloadWebClient.get()
-                            .uri(nm.url())
-                            .retrieve()
-                            .bodyToMono(byte[].class)
-                            .map(b -> new DownloadedGif(nm, b)
-                            )
+                        this.urlDownloadWebClient.get()
+                                .uri(nm.url())
+                                .retrieve()
+                                .bodyToMono(byte[].class)
+                                .map(b -> new DownloadedGif(nm, b))
+                                .onErrorResume(e -> {
+                                    log.error(this.logMapper.log(CLASS_NAME, "An error occurred while trying downloading a file from url: %s".formatted(nm.url())), e);
+                                    return Mono.empty();
+                                })
                 )
                 .collectList()
                 .subscribe(g -> {
                     final BatchDownloadedGif b = new BatchDownloadedGif(g, result.clientResponse());
-                    log.info(this.logMapper.log(this.getClass().getSimpleName(), "Successfully downloaded %s gifs".formatted(g.size())));
+                    log.info(this.logMapper.log(CLASS_NAME, "Successfully downloaded %s gifs".formatted(g.size())));
                     this.gifSimilarityMatcher.extractAndHash(b);
                 });
     }

@@ -1,22 +1,19 @@
 package com.github.kusoroadeolu.revgif.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table(name = "frames")
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Builder
+@Setter
 public class Frame {
-
     @Id
-    private Integer id;
+    private Long id;
     private long pHash;
     private int frameIdx;
-
+    private long gif;
 }

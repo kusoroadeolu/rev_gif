@@ -9,9 +9,9 @@ import java.util.Set;
 
 public interface FrameRepository extends ListCrudRepository<Frame, Integer> {
     @Query("""
-            SELECT m.tenor_url, m.name, m.content_type
+            SELECT g.tenor_url, g.description, g.mime_type
             FROM frames f
-                     JOIN media m ON f.media = m.id
+                     JOIN gifs g ON f.gifs = g.id
             WHERE BIT_COUNT((f.p_hash # :userFrameHash)::BIT(64)) < :threshold
             ORDER BY BIT_COUNT((f.p_hash # :userFrameHash)::BIT(64))
             LIMIT 10;

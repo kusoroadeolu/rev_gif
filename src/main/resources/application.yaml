@@ -45,7 +45,7 @@ api:
     api-key: ${TENOR_API_KEY}
     base-url: https://tenor.googleapis.com/v2/search
     content-filter: low
-    media-filter: gif, tinygif, mp4 #Only gifs are needed
+    media-filter: gif, mp4 #Only gifs are needed
     limit: 15
 
 

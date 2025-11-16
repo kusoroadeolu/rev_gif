@@ -4,9 +4,11 @@ import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
 import com.github.kusoroadeolu.revgif.exceptions.FileReadException;
 import com.github.kusoroadeolu.revgif.exceptions.UnsupportedFileFormatException;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FileWrapper;
+import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.services.ValidatorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.Tika;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,33 +22,35 @@ import java.util.Arrays;
 public class ValidatorServiceImpl implements ValidatorService {
 
     private final AppConfigProperties configProperties;
+    private final Tika tika;
+    private final LogMapper logMapper;
+    private final static String CLASS_NAME = ValidatorServiceImpl.class.getSimpleName();
 
     @Override
-    public FileWrapper validateFile(@NonNull MultipartFile file){
-        byte[] b;
-        final String contentType = file.getContentType() == null ?
-                null : file.getContentType().toLowerCase();
-        try {
-            final byte[] originalBytes = file.getBytes();
-             b = Arrays.copyOf(originalBytes, originalBytes.length);
-        } catch (IOException e) {
-            log.info("An unexpected error occurred while trying to read this file", e);
-            throw new FileReadException("An unexpected error occurred while trying to read this file", e);
-        }
+    public FileWrapper validateFile(byte[] b){
 
-
-        if (file.isEmpty()) {
+        if(b.length < 1){
             throw new UnsupportedFileFormatException("File cannot be empty");
         }
 
-        log.info("File content type: {}", contentType);
+        String mimeType = null;
 
-        if (contentType == null || !this.configProperties.getAllowedFileFormats().contains(contentType)) {
-            log.info("Invalid file format");
-            throw new UnsupportedFileFormatException("Invalid file format given. Format: %s".formatted(contentType));
+        try {
+            mimeType = tika.detect(b);
+        }catch (Exception e){
+            log.error(this.logMapper.log(CLASS_NAME, "Failed to detect file type"), e);
+            throw new UnsupportedFileFormatException("Could not determine file type");
         }
 
-        return new FileWrapper(b, contentType);
+        log.info(this.logMapper.log(CLASS_NAME, "File content type: %s".formatted(mimeType)));
+
+        if (mimeType == null || !this.configProperties.getAllowedFileFormats().contains(mimeType)) {
+            throw new UnsupportedFileFormatException(
+                    "Invalid file format. Detected: %s, Allowed: %s"
+                            .formatted(mimeType, configProperties.getAllowedFileFormats())
+            );        }
+
+        return new FileWrapper(b, mimeType);
 
     }
 
