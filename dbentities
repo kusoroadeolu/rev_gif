@@ -1,0 +1,35 @@
+2025-11-15T19:43:04.801+01:00 INFO 17396 --- [RevGif] [ctor-http-nio-2] c.g.k.r.services.impl.TestEventListener : Result -> GifResult[
+    results=[
+        NormalizedGifResult[
+            id=325025993289463411,
+            url=https://media.tenor.com/BIK5azjJdnMAAAAC/monkey-brown.gif,
+            title=
+        ],
+        NormalizedGifResult[
+            id=8014722094246795315,
+            url=https://media.tenor.com/bzoDR-kOGDMAAAAC/roblox-face.gif,
+            title=
+        ],
+        NormalizedGifResult[
+            id=7525002670197220348,
+            url=https://media.tenor.com/aG4uDzL4o_wAAAAC/oof-yikes.gif,
+            title=
+        ],
+        NormalizedGifResult[
+            id=14946312821436839533,
+            url=https://media.tenor.com/z2v4Uneb9m0AAAAC/ugh-fred-pye.gif,
+            title=
+        ],
+        NormalizedGifResult[
+            id=2280279193804917619,
+            url=https://media.tenor.com/H6Ut2Gd0y3MAAAAC/cringe-face-cringe-meme.gif,
+            title=
+        ]
+    ],
+    clientResponse=ImageClientResponse[
+        searchQuery=ishowspeed cringe reaction funny face,
+        format=gif,
+        frameIdx=0,
+        hash=5550966040179129959
+    ]
+]

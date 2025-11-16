@@ -1,7 +1,9 @@
 package com.github.kusoroadeolu.revgif.dtos.wrappers;
 
+import dev.brachtendorf.jimagehash.hash.Hash;
+
 public record HashWrapper(
         FrameWrapper frameWrapper,
-        Long hash
+        Hash hash
 ) {
 }

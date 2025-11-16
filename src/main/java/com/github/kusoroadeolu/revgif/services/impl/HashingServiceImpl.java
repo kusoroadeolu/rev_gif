@@ -27,12 +27,11 @@ public class HashingServiceImpl implements HashingService {
             for (FrameWrapper frame : frames) {
                 fw = frame;
                 final Hash hash = this.hasher.hash(fw.image());
-                final HashWrapper w = new HashWrapper(fw, hash.getHashValue().longValue());
+                final HashWrapper w = new HashWrapper(fw, hash);
                 hws.add(w);
-                log.info("Added hash at idx: {}, hash: {}", w.frameWrapper().frameIdx(), w.hash());
             }
-
-            return hws;
+        log.info("Successfully hashed {} frames", hws.size());
+        return hws;
     }
 
 }

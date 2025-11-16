@@ -12,11 +12,13 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 import org.springframework.resilience.annotation.EnableResilientMethods;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableResilientMethods
 @EnableJdbcRepositories
 @EnableConfigurationProperties
+@EnableAsync
 @ConfigurationPropertiesScan
 public class RevGifApplication {
     public static void main(String[] args) {
@@ -27,16 +29,16 @@ public class RevGifApplication {
     public CommandLineRunner commandLineRunner(MediaRepository mediaRepository, FrameRepository frameRepository){
         return args -> {
 
-            Frame f =
-                    Frame.builder()
-                            .id(null)
-                            .pHash(123456)
-                            .frameIdx(0)
-                            .build();
-
-            Media m = mediaRepository.findById(1L).orElse(null);
-            m.getFrames().add(f);
-            mediaRepository.save(m);
+//            Frame f =
+//                    Frame.builder()
+//                            .id(null)
+//                            .pHash(123456)
+//                            .frameIdx(0)
+//                            .build();
+//
+//            Media m = mediaRepository.findById(1L).orElse(null);
+//            m.getFrames().add(f);
+//            mediaRepository.save(m);
 
 //            Media m =
 //                mediaRepository.save(

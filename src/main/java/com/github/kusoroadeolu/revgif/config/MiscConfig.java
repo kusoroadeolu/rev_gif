@@ -6,6 +6,9 @@ import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.core.task.VirtualThreadTaskExecutor;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Map;
@@ -20,15 +23,12 @@ public class MiscConfig {
 
     private final AppConfigProperties properties;
 
-    @Bean(destroyMethod = "shutdown")
-    public ExecutorService vExecutorService(){
-        return Executors.newVirtualThreadPerTaskExecutor();
+    @Bean
+    public TaskExecutor taskExecutor(){
+        return new VirtualThreadTaskExecutor();
     }
 
-    @Bean(destroyMethod = "shutdown")
-    public ExecutorService workStealingExecutorService(){
-        return Executors.newWorkStealingPool();
-    }
+
 
     @Bean
     public Map<UUID, SseEmitter> emitters(){

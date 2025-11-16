@@ -12,11 +12,18 @@ public record LogDump(
 
     @Override
     @NonNull
-    public String toString(){
-        return """
-                thrownAt: %s
-                thrownFrom: %s
-                errorMessage: %s
-                """.formatted(loggedAt, loggedFrom, logMessage);
+    public String toString() {
+        return "{loggedAt=%s, loggedFrom=%s, logMessage=%s}"
+                .formatted(
+                        loggedAt,
+                        loggedFrom,
+                        sanitize(logMessage)
+                );
     }
+
+    private static String sanitize(String msg) {
+        if (msg == null) return "null";
+        return msg.replace("\n", "\\n").replace("\r", "\\r");
+    }
+
 }

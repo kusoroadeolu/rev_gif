@@ -16,7 +16,7 @@ public class LogMapper {
         this.dateTimeFormatter = DateTimeFormatter.ofPattern(dateTimePattern);
     }
 
-    public String getLog(String className, String logMessage) {
+    public String log(String className, String logMessage) {
         String timestamp = this.dateTimeFormatter.format(LocalDateTime.now());
         return new LogDump(timestamp, className, logMessage).toString();
     }

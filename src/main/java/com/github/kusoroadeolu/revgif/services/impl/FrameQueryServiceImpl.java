@@ -5,6 +5,7 @@ import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 import com.github.kusoroadeolu.revgif.dtos.DbQueryResult;
 import com.github.kusoroadeolu.revgif.repos.FrameRepository;
 import com.github.kusoroadeolu.revgif.services.ImageClient;
+import dev.brachtendorf.jimagehash.hash.Hash;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,8 +25,9 @@ public class FrameQueryServiceImpl implements com.github.kusoroadeolu.revgif.ser
 
     @Override
     public void findSimilarMediaFrames(HashWrapper hashWrapper){
-        final long hash = hashWrapper.hash();
-        final Set<DbQueryResult> res = this.frameRepository.compareByHash(hash,
+        final Hash hash = hashWrapper.hash();
+        final long hashVal = hash.getHashValue().longValue();
+        final Set<DbQueryResult> res = this.frameRepository.compareByHash(hashVal,
                 this.appConfigProperties.getStrictHammingThreshold());
         log.info("Results: {}", res);
 

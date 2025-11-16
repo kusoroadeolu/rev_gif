@@ -27,6 +27,7 @@ spring:
       max-file-size: 100MB #10MB max size
       max-request-size: 100MB
 
+
 api:
   gemini:
     api-key: ${GEMINI_API_KEY}
@@ -42,14 +43,14 @@ api:
 
   tenor:
     api-key: ${TENOR_API_KEY}
-    base-url: https://tenor.googleapis.com/v2/search?<parameters>
-    search-filter: sticker #For both static and animated gifs
+    base-url: https://tenor.googleapis.com/v2/search
     content-filter: low
-    media-filter: gif, tinygif #Only gifs are needed
-    limit: 5
+    media-filter: gif, tinygif, mp4 #Only gifs are needed
+    limit: 15
 
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
+
 
 
 

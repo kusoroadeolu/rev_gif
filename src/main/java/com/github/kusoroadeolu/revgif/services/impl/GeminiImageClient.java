@@ -7,10 +7,7 @@ import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.services.ImageClient;
 import com.google.genai.Client;
-import com.google.genai.types.Content;
-import com.google.genai.types.GenerateContentConfig;
-import com.google.genai.types.GenerateContentResponse;
-import com.google.genai.types.Part;
+import com.google.genai.types.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,15 +36,20 @@ public class GeminiImageClient implements ImageClient {
             final byte[] b = toBytes(image);
             final Part imgPart = Part.fromBytes(b, DEFAULT_MIME_TYPE);
             final Part textPart = Part.fromText(PROMPT);
+            final Tool googleSearchTool = Tool.builder()
+                    .googleSearch(GoogleSearch.builder().build())
+                    .build();
+
             final Content content = Content.fromParts(textPart, imgPart);
             final GenerateContentResponse description = geminiClient.models.generateContent(
                         this.geminiConfigProperties.model(),
                         content,
-                        GenerateContentConfig.builder().build()
+                        GenerateContentConfig.builder().tools(googleSearchTool).build()
             );
+            log.info(this.logMapper.log(CLASS_NAME, "Result: %s".formatted(description.text())));
             return new ImageClientResponse(description.text(), wrapper.frameWrapper().format(), wrapper.frameWrapper().frameIdx(), wrapper.hash());
         }catch (IOException e) {
-            log.error(this.logMapper.getLog(CLASS_NAME, "An image read ex occurred."), e);
+            log.error(this.logMapper.log(CLASS_NAME, "An image read ex occurred."), e);
             throw new FileReadException("We failed to read your image", e);
         }
 
@@ -61,18 +63,28 @@ public class GeminiImageClient implements ImageClient {
     }
 
 
-    private final static String PROMPT = """
-            You are an expert GIF Search Query Optimizer. Your task is to analyze the core subject, action, and emotion in the image and generate the single most effective search query for a high-volume platform like Tenor.
-            
-            INSTRUCTIONS:
-            
-            Prioritize the Keyword Strategy: A concise list of individual, high-signal keywords is superior to a long, descriptive sentence. For example, use cat, knocking over water, guilty instead of guilty looking cat knocking over water.
-            
-            Identify the 3 to 5  most critical, distinct keywords or short phrases (subject, primary action, emotion, meme context). Prioritize actions over objects
-            
-            Ensure the output is ready to be URL-encoded. This means your final output must be a single string of keywords/phrases separated by spaces.
-            
-            Output Format: Respond with ONLY the optimal, high-signal keywords/phrases.
-            """;
+    private final static String PROMPT =
+        """
+                Generate a 2-3 word GIF search query for this image.
+               \s
+                Priority order:
+                1. Named people/celebrities if recognizable → pair with ONE generic word only
+                   Examples: "obama face", "kardashian reaction", "rock eyebrow"
+                2. If no celebrity/named person: primary emotion/action (max 2-3 words)
+                   Examples: "cringe reaction", "happy dance", "confused look"
+               \s
+                Rules:
+                - Keep it SHORT: 2-3 words maximum
+                - When celebrity is present: "[name] + [generic term]" (face/reaction/moment)
+                - When no celebrity: "[emotion] + [action/noun]"
+                - Use high-volume search terms people actually type
+                - Separate with spaces only
+               \s
+                Bad examples (too specific):
+                - "ishowspeed cringe face" → use "ishowspeed face"
+                - "cat knocking over guilty" → use "cat guilty"
+               \s
+                Output only the keywords, nothing else.
+       \s""";
 
 }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface FrameExtractorService {
     List<FrameWrapper> extractFrames(FileWrapper fileWrapper);
+
+    List<FrameWrapper> extractFrames(byte[] b, String format);
 }
