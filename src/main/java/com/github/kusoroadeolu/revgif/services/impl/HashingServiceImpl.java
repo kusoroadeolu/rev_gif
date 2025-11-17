@@ -2,6 +2,7 @@ package com.github.kusoroadeolu.revgif.services.impl;
 
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
+import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.services.HashingService;
 import dev.brachtendorf.jimagehash.hash.Hash;
 import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
@@ -19,6 +20,8 @@ import java.util.List;
 public class HashingServiceImpl implements HashingService {
 
     private final HashingAlgorithm hasher;
+    private final LogMapper logMapper;
+    private final static String CLASS_NAME = HashingServiceImpl.class.getSimpleName();
 
     @Override
     public List<HashWrapper> hashFrames(@NonNull List<FrameWrapper> frames){
@@ -30,7 +33,7 @@ public class HashingServiceImpl implements HashingService {
                 final HashWrapper w = new HashWrapper(fw, hash);
                 hws.add(w);
             }
-        log.info("Successfully hashed {} frames", hws.size());
+        log.info(this.logMapper.log(CLASS_NAME, "Successfully hashed %s frames".formatted(frames.size())));
         return hws;
     }
 

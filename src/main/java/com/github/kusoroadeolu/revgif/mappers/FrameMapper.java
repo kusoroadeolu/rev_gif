@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class FrameMapper {
     public Set<Frame> toFrame(List<HashWrapper> hw){
         return hw.stream()
-                .map(h -> new Frame(null, h.hash().getHashValue().longValueExact(), h.frameWrapper().frameIdx(), 0))
+                .map(h -> new Frame(null, h.hash().getHashValue().longValue(), h.frameWrapper().frameIdx(), 0))
                 .collect(Collectors.toSet());
     }
 }

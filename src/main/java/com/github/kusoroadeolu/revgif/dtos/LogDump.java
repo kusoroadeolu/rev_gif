@@ -13,7 +13,7 @@ public record LogDump(
     @Override
     @NonNull
     public String toString() {
-        return "{loggedAt=%s, loggedFrom=%s, logMessage=%s}"
+        return "loggedAt=%s, loggedFrom=%s, logMessage=%s"
                 .formatted(
                         loggedAt,
                         loggedFrom,

@@ -9,12 +9,11 @@ import com.google.genai.types.HttpRetryOptions;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.RequiredArgsConstructor;
-import okhttp3.internal.connection.Exchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.retry.RetryPolicy;
-import org.springframework.core.retry.RetryTemplate;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +21,7 @@ import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.SSLException;
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Configuration
 @RequiredArgsConstructor
@@ -36,9 +36,10 @@ public class WebConfig {
         final HttpClient httpClient =
                 HttpClient.create()
                         .responseTimeout(Duration.ofSeconds(30))
+                        .doOnConnected(c -> c.addHandlerFirst(new ReadTimeoutHandler(30, TimeUnit.SECONDS)))
+                        .doOnConnected(c -> c.addHandlerLast(new WriteTimeoutHandler(30, TimeUnit.SECONDS)))
                         .secure(spec -> spec.sslContext(ctx))
                         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20_000);
-
         return WebClient
                 .builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))

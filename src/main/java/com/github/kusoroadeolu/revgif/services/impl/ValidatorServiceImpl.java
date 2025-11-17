@@ -33,21 +33,21 @@ public class ValidatorServiceImpl implements ValidatorService {
             throw new UnsupportedFileFormatException("File cannot be empty");
         }
 
-        String mimeType = null;
+        String mimeType;
 
         try {
             mimeType = tika.detect(b);
         }catch (Exception e){
             log.error(this.logMapper.log(CLASS_NAME, "Failed to detect file type"), e);
-            throw new UnsupportedFileFormatException("Could not determine file type");
+            throw new UnsupportedFileFormatException("Could not determine file type", e);
         }
 
         log.info(this.logMapper.log(CLASS_NAME, "File content type: %s".formatted(mimeType)));
 
-        if (mimeType == null || !this.configProperties.getAllowedFileFormats().contains(mimeType)) {
+        if (mimeType == null || !this.configProperties.allowedFileFormats().contains(mimeType)) {
             throw new UnsupportedFileFormatException(
                     "Invalid file format. Detected: %s, Allowed: %s"
-                            .formatted(mimeType, configProperties.getAllowedFileFormats())
+                            .formatted(mimeType, configProperties.allowedFileFormats())
             );        }
 
         return new FileWrapper(b, mimeType);

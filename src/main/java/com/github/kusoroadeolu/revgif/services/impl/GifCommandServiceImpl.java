@@ -1,5 +1,7 @@
 package com.github.kusoroadeolu.revgif.services.impl;
 
+import com.github.kusoroadeolu.revgif.enums.GifEntityFields;
+import com.github.kusoroadeolu.revgif.exceptions.GifPersistenceException;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.model.Frame;
 import com.github.kusoroadeolu.revgif.model.Gif;
@@ -7,8 +9,10 @@ import com.github.kusoroadeolu.revgif.services.GifCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
@@ -18,9 +22,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.github.kusoroadeolu.revgif.enums.GifEntityFields.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +35,12 @@ import java.util.stream.Collectors;
 public class GifCommandServiceImpl implements GifCommandService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final static String CLASS_NAME = GifCommandServiceImpl.class.getSimpleName();
     private final LogMapper logMapper;
-    private final static String BATCH_GIF_INSERT = "INSERT INTO gifs(mime_type, description, tenor_id, tenor_url, search_query, frames) VALUES (?,?,?,?,?,?) ON CONFLICT(tenor_id, tenor_url) DO NOTHING";
-    private final static String BATCH_FRAME_INSERT = "INSERT INTO frames(p_hash, frame_idx, gif) VALUES (?, ?, ?)";
-    private final static String SAVED_GIF_QUERY = "SELECT * from gifs WHERE id = ANY(?)";
+    private final static String BATCH_GIF_INSERT = "INSERT INTO gifs(mime_type, description, tenor_id, tenor_url, search_query) VALUES (?,?,?,?,?) ON CONFLICT(tenor_id) DO NOTHING";
+    private final static String BATCH_FRAME_INSERT = "INSERT INTO frames(p_hash, frame_idx, gifs) VALUES (?, ?, ?)";
+    private final static String SAVED_GIF_QUERY = "SELECT * from gifs WHERE id IN (:id)";
 
     /**
      * This method batch saves gifs and frames. Each gif is mapped to its tenor ID, batch saved and the gifs which were successfully saved are queried back.
@@ -41,52 +49,64 @@ public class GifCommandServiceImpl implements GifCommandService {
      * */
     @Transactional
     @Override
-    public void batchSave(List<Gif> gifs){
-        log.info("Batch save hit");
+    public void batchSave(@NonNull List<Gif> gifs){
+        this.logMapper.log(CLASS_NAME, "Current list size at DB call: %s".formatted(gifs.size()));
+        if(gifs.isEmpty()) return;
+
         try{
-        final Map<String, Gif> mappedGifs = gifs.stream()
-                .collect(Collectors.toMap(Gif::getTenorId, e -> e));
+            final Map<String, Gif> mappedGifs = gifs.stream()
+                    .collect(Collectors.toMap(Gif::getTenorId, e -> e));
 
-        final KeyHolder keyHolder = new GeneratedKeyHolder();
-        this.batchUpdateGifs(keyHolder, gifs);
-        final List<Long> generatedIds = keyHolder
-                .getKeyList()
-                .stream()
-                .map(m -> (Long) m.get("id"))
-                .toList();  //Get all the generated ids for the gifs
-        log.info(this.logMapper.log(CLASS_NAME, "%s IDs generated successfully".formatted(generatedIds.size())));
+            final KeyHolder keyHolder = new GeneratedKeyHolder();
+            this.batchUpdateGifs(keyHolder, gifs);
+            final List<Long> generatedIds = keyHolder
+                    .getKeyList()
+                    .stream()
+                    .map(m -> (Long) m.get(ID.val()))
+                    .toList();  //Get all the generated ids for the gifs
+            log.info(this.logMapper.log(CLASS_NAME, "%s IDs generated successfully".formatted(generatedIds.size())));
 
-        //Get the gifs that were saved. The reason for this is cause some gifs might not have saved due to unique constraints
-        final List<Gif> savedGifs = this.querySavedGifs(generatedIds);
+            if(generatedIds.isEmpty()){
+                log.info(this.logMapper.log(CLASS_NAME, "No IDs were generated for this gif batch"));
+                return;
+            }
 
-        final List<Frame> frames = new ArrayList<>();
-        for (final Gif savedGif : savedGifs){
-            final Gif mappedGif = mappedGifs.get(savedGif.getTenorId());
-            mappedGif.getFrames().forEach(e -> {   //Get the frames to saved from the mapped gif
-                e.setGif(savedGif.getId());
-                frames.add(e);
-            });
-        }
+            //Get the gifs that were saved. The reason for this is cause some gifs might not have saved due to unique constraints
+            final List<Gif> savedGifs = this.querySavedGifs(generatedIds);
 
-        this.batchUpdateFrames(frames);
-        log.info(this.logMapper.log(CLASS_NAME, "Successfully saved all frames to corresponding gifs"));
+            final List<Frame> frames = new ArrayList<>();
+            for (final Gif savedGif : savedGifs){
+                final Gif mappedGif = mappedGifs.get(savedGif.getTenorId());
+                mappedGif.getFrames().forEach(e -> {   //Get the frames to saved from the mapped gif
+                    e.setGif(savedGif.getId());
+                    frames.add(e);
+                });
+            }
+
+            this.batchUpdateFrames(frames);
+            log.info(this.logMapper.log(CLASS_NAME, "Successfully saved all frames to corresponding gifs"));
+
         }catch (Exception e){
-            log.error("An error occurred", e);
+            log.error(this.logMapper.log(CLASS_NAME, "An error occurred during batch save"), e);
+            throw new GifPersistenceException("An error occurred during batch save", e); //Rethrow to trigger transaction
         }
     }
 
     private List<Gif> querySavedGifs(List<Long> generatedIds){
-        return this.jdbcTemplate.query(SAVED_GIF_QUERY,
-                (rs, rowNum) ->
-                        Gif.builder()
-                                .id(rs.getLong("id"))
-                                .mimeType(rs.getString("mime_type"))
-                                .description(rs.getString("description"))
-                                .tenorUrl(rs.getString("tenor_url"))
-                                .tenorId(rs.getString("tenor_id"))
-                                .searchQuery(rs.getString("search_query"))
-                                .build()
-                , generatedIds);
+        return this.namedParameterJdbcTemplate.query(
+                SAVED_GIF_QUERY,
+                Collections.singletonMap("id", generatedIds),
+                (rs, _) -> {
+                    return Gif.builder()
+                            .id(rs.getLong(ID.val()))
+                            .mimeType(rs.getString(MIME_TYPE.val()))
+                            .description(rs.getString(DESCRIPTION.val()))
+                            .tenorUrl(rs.getString(TENOR_URL.val()))
+                            .tenorId(rs.getString(TENOR_ID.val()))
+                            .searchQuery(rs.getString(SEARCH_QUERY.val()))
+                            .build();
+                }
+        );
     }
 
     private void batchUpdateGifs(KeyHolder keyHolder, List<Gif> gifs){
@@ -101,6 +121,7 @@ public class GifCommandServiceImpl implements GifCommandService {
                         ps.setString(3, gif.getTenorId());
                         ps.setString(4, gif.getTenorUrl());
                         ps.setString(5, gif.getSearchQuery());
+
                     }
 
                     @Override

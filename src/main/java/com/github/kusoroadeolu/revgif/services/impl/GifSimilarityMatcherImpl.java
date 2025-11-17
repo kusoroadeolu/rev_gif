@@ -1,23 +1,26 @@
 package com.github.kusoroadeolu.revgif.services.impl;
 
+import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
 import com.github.kusoroadeolu.revgif.dtos.gif.BatchDownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.DownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.HashedGif;
-import com.github.kusoroadeolu.revgif.dtos.gif.NormalizedGif;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
+import com.github.kusoroadeolu.revgif.exceptions.GifMatchingException;
 import com.github.kusoroadeolu.revgif.mappers.FrameMapper;
 import com.github.kusoroadeolu.revgif.mappers.GifMapper;
+import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.model.Frame;
 import com.github.kusoroadeolu.revgif.model.Gif;
 import com.github.kusoroadeolu.revgif.services.FrameExtractorService;
 import com.github.kusoroadeolu.revgif.services.GifCommandService;
+import com.github.kusoroadeolu.revgif.services.GifSimilarityMatcher;
 import com.github.kusoroadeolu.revgif.services.HashingService;
 import dev.brachtendorf.jimagehash.hash.Hash;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,20 +28,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GifSimilarityMatcher {
+public class GifSimilarityMatcherImpl implements GifSimilarityMatcher {
 
     private final FrameExtractorService frameExtractorService;
+    private final ApplicationEventPublisher applicationEventPublisher;
     private final HashingService hashingService;
+    private final AppConfigProperties appConfigProperties;
     private final GifCommandService gifCommandService;
     private final FrameMapper frameMapper;
     private final GifMapper gifMapper;
+    private final LogMapper logMapper;
     private final TaskExecutor taskExecutor;
+    private final static String CLASS_NAME = GifSimilarityMatcherImpl.class.getSimpleName();
 
+    @Override
     public void extractAndHash(BatchDownloadedGif bdf){
         final Hash hash = bdf.clientResponse().hash();
         final String format = bdf.clientResponse().format();
@@ -52,25 +59,36 @@ public class GifSimilarityMatcher {
             hashedGifs.add(new HashedGif(g.normalizedGif(), hws));
         }
 
-        final List<Gif> gifsToSave = new CopyOnWriteArrayList<>();
+
+        final List<Gif> similarGifs = new CopyOnWriteArrayList<>();
         final List<CompletableFuture> futures = new ArrayList<>();
         for (final HashedGif hf : hashedGifs){
-            futures.add(CompletableFuture.runAsync(() -> this.compareHashAgainstFrames(hf, hash, query, format, gifsToSave), this.taskExecutor));
+            futures.add(CompletableFuture.runAsync(() -> this.compareHashAgainstFrames(hf, hash, query, format, similarGifs), this.taskExecutor));
         }
 
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)) //Wait for each future to complete before saving to the db
-                .thenRunAsync(() -> this.gifCommandService.batchSave(gifsToSave), this.taskExecutor);
+                .thenRun(() -> this.applicationEventPublisher.publishEvent(this.gifMapper.toSearchCompletedEvent(similarGifs)))
+                .thenRun(() -> this.gifCommandService.batchSave(similarGifs))
+                .exceptionally(e -> {
+                    log.error(this.logMapper.log(CLASS_NAME, "An unexpected error occurred: "), e);
+                    throw new GifMatchingException(e);
+                });
+        log.info("Final size: {}", similarGifs.size());
 
     }
+
+
 
     private void compareHashAgainstFrames(HashedGif hf, Hash hash, String query, String format, List<Gif> gifs){
         final List<HashWrapper> hw = hf.hashWrappers();
         for (HashWrapper h : hw){
             final double hd = h.hash().normalizedHammingDistance(hash);
-            if(hd < 0.285){
+            if(hd <= this.appConfigProperties.nmHammingThreshold()){
                 final Set<Frame> frames = this.frameMapper.toFrame(hw);
                 final Gif g = this.gifMapper.toGif(hf, query, format, frames);
+                this.logMapper.log(CLASS_NAME, "Found similar gif. Hamming dist: %s".formatted(hd));
                 gifs.add(g);
+                this.logMapper.log(CLASS_NAME, "Current list size: %s".formatted(gifs.size()));
                 break;
             }
         }

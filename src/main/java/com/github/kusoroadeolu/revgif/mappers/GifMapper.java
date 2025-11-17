@@ -1,16 +1,16 @@
 package com.github.kusoroadeolu.revgif.mappers;
 
+import com.github.kusoroadeolu.revgif.dtos.gif.GifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.ImageClientResponse;
 import com.github.kusoroadeolu.revgif.dtos.gif.*;
-import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 import com.github.kusoroadeolu.revgif.model.Frame;
 import com.github.kusoroadeolu.revgif.model.Gif;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 public class GifMapper {
@@ -24,6 +24,15 @@ public class GifMapper {
         }
 
         return new BatchNormalizedGif(normalizedGifs, imageClientResponse);
+    }
+
+    public GifSearchCompletedEvent toSearchCompletedEvent(Gif gif){
+        return new GifSearchCompletedEvent(gif.getTenorUrl(), gif.getDescription(), gif.getMimeType());
+    }
+
+    public List<GifSearchCompletedEvent> toSearchCompletedEvent(Collection<Gif> gif){
+        if(gif.isEmpty()) return List.of();
+        return gif.stream().map(this::toSearchCompletedEvent).toList();
     }
 
 

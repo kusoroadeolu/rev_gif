@@ -1,7 +1,7 @@
 package com.github.kusoroadeolu.revgif.repos;
 
 import com.github.kusoroadeolu.revgif.model.Frame;
-import com.github.kusoroadeolu.revgif.dtos.DbQueryResult;
+import com.github.kusoroadeolu.revgif.dtos.gif.GifSearchCompletedEvent;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 
@@ -16,5 +16,5 @@ public interface FrameRepository extends ListCrudRepository<Frame, Integer> {
             ORDER BY BIT_COUNT((f.p_hash # :userFrameHash)::BIT(64))
             LIMIT 10;
             """)
-    public Set<DbQueryResult> compareByHash(long userFrameHash, int threshold);
+    public Set<GifSearchCompletedEvent> compareByHash(long userFrameHash, int threshold);
 }

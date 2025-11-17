@@ -33,7 +33,7 @@ public class FrameExtractorServiceImpl implements FrameExtractorService {
     private final static int IMAGE_START_IDX = 0;
 
     @Override
-    public List<FrameWrapper> extractFrames(FileWrapper fileWrapper){
+    public List<FrameWrapper> extractFrames(@NonNull FileWrapper fileWrapper){
             final String format = this.getFileFormat(fileWrapper.contentType());
             return this.extractFramesFromMedia(fileWrapper.bytes(), format, ExtractionType.FROM_UPLOAD);
     }
@@ -69,7 +69,7 @@ public class FrameExtractorServiceImpl implements FrameExtractorService {
     }
 
     private List<FrameWrapper> getFrames(ImageReader imageReader, int frameNums, String format) throws IOException {
-        final int nextFrame = frameNums / this.configProperties.getExpectedFrames();
+        final int nextFrame = frameNums / this.configProperties.expectedFrames();
         return this.loopThroughImage(imageReader, format, nextFrame, frameNums);
     }
 

@@ -6,3 +6,5 @@ This file includes some decisions I've made so far
 - Decided to split uploaded media up to 5 frames max, before passing it through the image client to get a wider range of tags to upload to tenor
 - For the downloaded gifs from tenor, I decided to actually extract all frames from the gif and compare them against the uploaded media for more acc results even though it means a bit longer waiting time
 - I also decided to increase the tenor download limit to 15 to have a wider range of options to choose from
+- I actually ran into a weird bug whereby my list wasn't populated in the completable future chain before being sent to the DB, idk what happened but it started working
+- I decided to pass lists as events instead of sending events to the sse emitter directly. The reason for this is so the frontend(later on) will know when no more events from the sse emitter are arriving so it can stop showing loading...

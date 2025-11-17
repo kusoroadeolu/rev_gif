@@ -8,8 +8,8 @@ spring:
       - image/webp
     bit-resolution: 64
     expected_frames: 4 # To save costs lol
-    strict-hamming-threshold: 5
-    lenient-hamming-threshold: 10
+    hamming-threshold: 5
+    nm-hamming-threshold: 0.285 # normalized hamming dist. I landed on this thru trial and error
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -47,7 +47,6 @@ api:
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
     limit: 15
-
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 

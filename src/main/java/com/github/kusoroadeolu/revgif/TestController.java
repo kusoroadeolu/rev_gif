@@ -25,6 +25,7 @@ public class TestController {
     public ResponseEntity<@NonNull Void> upload(@RequestParam("file") MultipartFile file) throws IOException {
         log.info("Successfully hit endpoint: upload");
         orchestrator.orchestrate(file.getBytes());
+        //orchestrator.testDb();
         return ResponseEntity.ok().build();
     }
 
