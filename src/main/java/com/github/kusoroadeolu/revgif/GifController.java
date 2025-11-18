@@ -2,7 +2,7 @@ package com.github.kusoroadeolu.revgif;
 
 import com.github.kusoroadeolu.revgif.services.SseService;
 import com.github.kusoroadeolu.revgif.services.UploadOrchestrator;
-import com.github.kusoroadeolu.revgif.services.impl.CookieUtils;
+import com.github.kusoroadeolu.revgif.utils.CookieUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

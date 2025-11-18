@@ -30,7 +30,6 @@ public class UploadOrchestrator {
     private final GifQueryService gifQueryService;
     private final GifClient gifClient;
     private final GifCommandService gifCommandService;
-    private final SseService sseService;
     private final TaskExecutor taskExecutor;  //Virtual thread task exec
 
     public void orchestrate(byte[] b, String session){

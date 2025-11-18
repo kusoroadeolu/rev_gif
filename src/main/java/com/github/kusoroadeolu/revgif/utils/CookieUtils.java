@@ -1,4 +1,4 @@
-package com.github.kusoroadeolu.revgif.services.impl;
+package com.github.kusoroadeolu.revgif.utils;
 
 import com.github.kusoroadeolu.revgif.configprops.CookieConfigProperties;
 import jakarta.servlet.http.Cookie;
@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @RequiredArgsConstructor
 @Component
@@ -29,7 +27,6 @@ public class CookieUtils {
     public void addCookie(HttpServletRequest request, HttpServletResponse response, @NonNull Cookie cookie){
         final Cookie existing = this.findCookie(request);
         if(existing == null) response.addCookie(cookie);
-        ExecutorService s = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     private Cookie findCookie(HttpServletRequest request){

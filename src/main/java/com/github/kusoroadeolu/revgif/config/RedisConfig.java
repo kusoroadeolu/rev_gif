@@ -6,10 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,14 +20,13 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, SseEmitter> sseTemplate(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper){
-        final JacksonJsonRedisSerializer<SseEmitter> redisSerializer = new JacksonJsonRedisSerializer<>(objectMapper, SseEmitter.class);
+    public RedisTemplate<String, SseEmitter> sseTemplate(RedisConnectionFactory redisConnectionFactory){
         RedisTemplate<String, SseEmitter> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(redisSerializer);
-        redisTemplate.setHashValueSerializer(redisSerializer);
+        redisTemplate.setValueSerializer(new JdkSerializationRedisSerializer());
+        redisTemplate.setHashValueSerializer(new JdkSerializationRedisSerializer());
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
     }

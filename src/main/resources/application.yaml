@@ -8,8 +8,8 @@ spring:
       - image/webp
     bit-resolution: 64
     expected_frames: 4 # To save costs lol
-    hamming-threshold: 5
-    nm-hamming-threshold: 0.285 # normalized hamming dist. I landed on this thru trial and error
+    hamming-threshold: 18
+    nm-hamming-threshold: 0.285 # normalized hamming dist. I landed on this thru trial and error(.285 * 64 = 18, basically the same as the normalized hamming dist)
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -56,6 +56,10 @@ cookie:
   secure: false
   name: SESSION-COOKIE
   path: /
+
+sse:
+  duration: 5
+  cleanup: 10
 
 
 

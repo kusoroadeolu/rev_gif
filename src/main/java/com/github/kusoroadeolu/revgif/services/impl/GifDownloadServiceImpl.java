@@ -24,7 +24,7 @@ public class GifDownloadServiceImpl implements com.github.kusoroadeolu.revgif.se
 
     private final WebClient urlDownloadWebClient;
     private final LogMapper logMapper;
-    private final GifSimilarityMatcher gifSimilarityMatcherImpl;
+    private final GifSimilarityMatcher gifSimilarityMatcher;
     private final static String CLASS_NAME = GifDownloadServiceImpl.class.getSimpleName();
 
     @EventListener
@@ -49,7 +49,7 @@ public class GifDownloadServiceImpl implements com.github.kusoroadeolu.revgif.se
                 .subscribe(g -> {
                     final BatchDownloadedGif b = new BatchDownloadedGif(g, result.clientResponse());
                     log.info(this.logMapper.log(CLASS_NAME, "Successfully downloaded %s gifs".formatted(g.size())));
-                    this.gifSimilarityMatcherImpl.extractAndHash(b, result.session());
+                    this.gifSimilarityMatcher.extractAndHash(b, result.session());
                 });
     }
 
