@@ -8,8 +8,8 @@ spring:
       - image/webp
     bit-resolution: 64
     expected_frames: 4 # To save costs lol
-    hamming-threshold: 18
-    nm-hamming-threshold: 0.285 # normalized hamming dist. I landed on this thru trial and error(.285 * 64 = 18, basically the same as the normalized hamming dist)
+    hamming-threshold: 20
+    nm-hamming-threshold: 0.300 # normalized hamming dist. I landed on this thru trial and error(.285 * 64 = 18, basically the same as the normalized hamming dist)
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -24,8 +24,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 100MB #10MB max size
-      max-request-size: 100MB
+      max-file-size: 10MB #10MB max size
+      max-request-size: 10MB
 
 
 api:
@@ -46,7 +46,7 @@ api:
     base-url: https://tenor.googleapis.com/v2/search
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
-    limit: 15
+    limit: 5
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
@@ -58,8 +58,17 @@ cookie:
   path: /
 
 sse:
-  duration: 5
-  cleanup: 10
+  duration: 1
+  keyspace: session
+
+web-client:
+  ssl-handshake-timeout: 20
+  response-timeout: 30
+  read-write-timeout: 30
+  tcp-timeout-millis: 20_000
+  max-bytes-read: 10_485_760 #10 mb
+  max-retry-attempts: 3
+  backoff: 2
 
 
 

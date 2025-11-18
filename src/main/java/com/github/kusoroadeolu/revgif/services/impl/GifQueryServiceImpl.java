@@ -1,10 +1,9 @@
 package com.github.kusoroadeolu.revgif.services.impl;
 
 import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
-import com.github.kusoroadeolu.revgif.dtos.gif.BatchGifSearchCompletedEvent;
+import com.github.kusoroadeolu.revgif.dtos.events.BatchGifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
-import com.github.kusoroadeolu.revgif.dtos.gif.GifSearchCompletedEvent;
-import com.github.kusoroadeolu.revgif.mappers.GifMapper;
+import com.github.kusoroadeolu.revgif.dtos.events.GifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.repos.FrameRepository;
 import com.github.kusoroadeolu.revgif.services.GifQueryService;
 import dev.brachtendorf.jimagehash.hash.Hash;
@@ -14,7 +13,6 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor

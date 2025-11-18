@@ -1,11 +1,10 @@
 package com.github.kusoroadeolu.revgif.repos;
 
 import com.github.kusoroadeolu.revgif.model.Frame;
-import com.github.kusoroadeolu.revgif.dtos.gif.GifSearchCompletedEvent;
+import com.github.kusoroadeolu.revgif.dtos.events.GifSearchCompletedEvent;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 
-import java.util.List;
 import java.util.Set;
 
 public interface FrameRepository extends ListCrudRepository<Frame, Integer> {

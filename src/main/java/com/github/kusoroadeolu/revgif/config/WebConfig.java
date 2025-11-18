@@ -2,6 +2,7 @@ package com.github.kusoroadeolu.revgif.config;
 
 import com.github.kusoroadeolu.revgif.configprops.GeminiConfigProperties;
 import com.github.kusoroadeolu.revgif.configprops.TenorConfigProperties;
+import com.github.kusoroadeolu.revgif.configprops.WebClientConfigProperties;
 import com.google.genai.Client;
 import com.google.genai.types.ClientOptions;
 import com.google.genai.types.HttpOptions;
@@ -9,6 +10,7 @@ import com.google.genai.types.HttpRetryOptions;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.RequiredArgsConstructor;
@@ -29,17 +31,25 @@ public class WebConfig {
 
     private final GeminiConfigProperties geminiConfigProperties;
     private final TenorConfigProperties tenorConfigProperties;
+    private final WebClientConfigProperties webClientConfigProperties;
 
     @Bean
-    public WebClient tenorWebClient() throws SSLException{
+    public HttpClient httpClient() throws SSLException {
         final SslContext ctx = SslContextBuilder.forClient().build();
-        final HttpClient httpClient =
-                HttpClient.create()
-                        .responseTimeout(Duration.ofSeconds(30))
-                        .doOnConnected(c -> c.addHandlerFirst(new ReadTimeoutHandler(30, TimeUnit.SECONDS)))
-                        .doOnConnected(c -> c.addHandlerLast(new WriteTimeoutHandler(30, TimeUnit.SECONDS)))
-                        .secure(spec -> spec.sslContext(ctx))
-                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20_000);
+        return HttpClient.create()
+                .responseTimeout(Duration.ofSeconds(30))
+                .doOnConnected(c -> c.addHandlerFirst(new ReadTimeoutHandler(this.webClientConfigProperties.readWriteTimeout(), TimeUnit.SECONDS)))
+                .doOnConnected(c -> {
+                    final SslHandler handler = c.channel().pipeline().get(SslHandler.class);
+                    if (handler == null) return;
+                    handler.setHandshakeTimeout(this.webClientConfigProperties.sslHandShakeTimeout(), TimeUnit.SECONDS);
+                })
+                .secure(spec -> spec.sslContext(ctx))
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.webClientConfigProperties.tcpTimeoutMillis());
+    }
+
+    @Bean
+    public WebClient tenorWebClient(HttpClient httpClient) throws SSLException{
         return WebClient
                 .builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
@@ -49,12 +59,7 @@ public class WebConfig {
     }
 
     @Bean
-    public WebClient urlDownloadWebClient(ExchangeStrategies exchangeStrategies){
-        final HttpClient httpClient =
-                HttpClient.create()
-                        .responseTimeout(Duration.ofSeconds(30))
-                        .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 20_000);
-
+    public WebClient urlDownloadWebClient(HttpClient httpClient, ExchangeStrategies exchangeStrategies){
         return WebClient
                 .builder()
                 .exchangeStrategies(exchangeStrategies)
@@ -67,7 +72,7 @@ public class WebConfig {
     public ExchangeStrategies exchangeStrategies(){
         return ExchangeStrategies
                 .builder()
-                .codecs(c -> c.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
+                .codecs(c -> c.defaultCodecs().maxInMemorySize(this.webClientConfigProperties.maxBytesRead()))
                 .build();
     }
 

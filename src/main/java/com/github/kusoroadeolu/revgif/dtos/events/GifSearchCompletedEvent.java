@@ -1,4 +1,4 @@
-package com.github.kusoroadeolu.revgif.dtos.gif;
+package com.github.kusoroadeolu.revgif.dtos.events;
 
 public record GifSearchCompletedEvent(
     String tenorUrl,

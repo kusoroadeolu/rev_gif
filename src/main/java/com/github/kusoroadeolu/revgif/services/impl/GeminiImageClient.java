@@ -35,6 +35,7 @@ public class GeminiImageClient implements ImageClient {
     private final static String DEFAULT_FORMAT = "png";
     private final static String DEFAULT_MIME_TYPE = "image/png";
 
+    @Retryable(includes = ImageClientException.class)
     @Override
     public ImageClientResponse getFrameDescription(@NonNull HashWrapper wrapper) {
         try{
@@ -62,9 +63,6 @@ public class GeminiImageClient implements ImageClient {
             return new ImageClientResponse(description.text(), wrapper.frameWrapper().format(), wrapper.frameWrapper().frameIdx(), wrapper.hash());
         }catch (IOException e) {
             log.error(this.logMapper.log(CLASS_NAME, "An image read ex occurred."), e);
-            throw new ImageClientException(e);
-        }catch (Exception e){
-            log.error(this.logMapper.log(CLASS_NAME, "An IO ex occurred."), e);
             throw new ImageClientException(e);
         }
     }

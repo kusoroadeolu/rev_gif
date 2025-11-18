@@ -2,7 +2,7 @@ package com.github.kusoroadeolu.revgif.services;
 
 import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
 import com.github.kusoroadeolu.revgif.dtos.gif.BatchDownloadedGif;
-import com.github.kusoroadeolu.revgif.dtos.gif.BatchGifSearchCompletedEvent;
+import com.github.kusoroadeolu.revgif.dtos.events.BatchGifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.gif.DownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.HashedGif;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;
@@ -57,9 +57,11 @@ public class GifSimilarityMatcher {
 
 
         final List<Gif> similarGifs = new CopyOnWriteArrayList<>();
-        final List<CompletableFuture> futures = new ArrayList<>();
+        final List<CompletableFuture<Void>> futures = new ArrayList<>();
         for (final HashedGif hf : hashedGifs){
-            futures.add(CompletableFuture.runAsync(() -> this.compareHashAgainstFrames(hf, hash, query, format, similarGifs), this.taskExecutor));
+            var f = CompletableFuture.runAsync(() ->
+                    this.compareHashAgainstFrames(hf, hash, query, format, similarGifs), this.taskExecutor);
+            futures.add(f);
         }
 
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)) //Wait for each future to complete before saving to the db
@@ -75,17 +77,22 @@ public class GifSimilarityMatcher {
 
 
     private void compareHashAgainstFrames(HashedGif hf, Hash hash, String query, String format, List<Gif> gifs){
-        final List<HashWrapper> hw = hf.hashWrappers();
-        for (HashWrapper h : hw){
-            final double hd = h.hash().normalizedHammingDistance(hash);
-            if(hd <= this.appConfigProperties.nmHammingThreshold()){
-                final Set<Frame> frames = this.frameMapper.toFrame(hw);
-                final Gif g = this.gifMapper.toGif(hf, query, format, frames);
-                this.logMapper.log(CLASS_NAME, "Found similar gif. Hamming dist: %s".formatted(hd));
-                gifs.add(g);
-                this.logMapper.log(CLASS_NAME, "Current list size: %s".formatted(gifs.size()));
-                break;
+        try{
+            final List<HashWrapper> hw = hf.hashWrappers();
+            for (HashWrapper h : hw){
+                final double hd = h.hash().normalizedHammingDistance(hash);
+                log.info("Hamming dist: {}", hd);
+                if(hd <= this.appConfigProperties.nmHammingThreshold()){
+                    final Set<Frame> frames = this.frameMapper.toFrame(hw);
+                    final Gif g = this.gifMapper.toGif(hf, query, format, frames);
+                    this.logMapper.log(CLASS_NAME, "Found similar gif. Hamming dist: %s".formatted(hd));
+                    gifs.add(g);
+                    this.logMapper.log(CLASS_NAME, "Current list size: %s".formatted(gifs.size()));
+                    break;
+                }
             }
+        }catch (Exception e){
+            log.error("An unexpected error occurred while hashing frames", e);
         }
     }
 
