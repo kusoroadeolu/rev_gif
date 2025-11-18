@@ -62,7 +62,10 @@ public class GeminiImageClient implements ImageClient {
             return new ImageClientResponse(description.text(), wrapper.frameWrapper().format(), wrapper.frameWrapper().frameIdx(), wrapper.hash());
         }catch (IOException e) {
             log.error(this.logMapper.log(CLASS_NAME, "An image read ex occurred."), e);
-            throw new ImageClientException();
+            throw new ImageClientException(e);
+        }catch (Exception e){
+            log.error(this.logMapper.log(CLASS_NAME, "An IO ex occurred."), e);
+            throw new ImageClientException(e);
         }
     }
 

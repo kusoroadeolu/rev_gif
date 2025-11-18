@@ -30,6 +30,7 @@ public class HashingServiceImpl implements HashingService {
             for (FrameWrapper frame : frames) {
                 fw = frame;
                 final Hash hash = this.hasher.hash(fw.image());
+                log.info("Hash: {}", hash.getHashValue());
                 final HashWrapper w = new HashWrapper(fw, hash);
                 hws.add(w);
             }

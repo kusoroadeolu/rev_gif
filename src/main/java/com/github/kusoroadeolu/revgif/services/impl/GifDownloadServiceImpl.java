@@ -45,11 +45,11 @@ public class GifDownloadServiceImpl implements com.github.kusoroadeolu.revgif.se
                 )
                 .collectList()
                 .doOnError(e -> log.error(this.logMapper.log(CLASS_NAME, "An error occurred while batch downloading files"), e))
-                .onErrorResume(e -> Mono.empty())
+                //.onErrorResume(e -> Mono.empty())
                 .subscribe(g -> {
                     final BatchDownloadedGif b = new BatchDownloadedGif(g, result.clientResponse());
                     log.info(this.logMapper.log(CLASS_NAME, "Successfully downloaded %s gifs".formatted(g.size())));
-                    this.gifSimilarityMatcherImpl.extractAndHash(b);
+                    this.gifSimilarityMatcherImpl.extractAndHash(b, result.session());
                 });
     }
 

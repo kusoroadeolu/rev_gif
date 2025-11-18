@@ -1,12 +1,10 @@
 package com.github.kusoroadeolu.revgif.services;
 
-import com.github.kusoroadeolu.revgif.dtos.gif.GifSearchCompletedEvent;
+import com.github.kusoroadeolu.revgif.dtos.gif.BatchGifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.ImageClientResponse;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FileWrapper;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
-import com.github.kusoroadeolu.revgif.exceptions.GifMatchingException;
-import com.github.kusoroadeolu.revgif.exceptions.ImageClientException;
 import com.github.kusoroadeolu.revgif.model.Frame;
 import com.github.kusoroadeolu.revgif.model.Gif;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -31,30 +30,27 @@ public class UploadOrchestrator {
     private final GifQueryService gifQueryService;
     private final GifClient gifClient;
     private final GifCommandService gifCommandService;
+    private final SseService sseService;
     private final TaskExecutor taskExecutor;  //Virtual thread task exec
 
-
-    public void orchestrate(byte[] b){
+    public void orchestrate(byte[] b, String session){
          final FileWrapper fileWrapper = this.validatorService.validateFile(b);
          final List<FrameWrapper> frameWrappers = this.frameExtractor.extractFrames(fileWrapper);
          final List<HashWrapper> hashWrappers = this.hashingService.hashFrames(frameWrappers);
 
-         for (HashWrapper hw : hashWrappers) {
-             CompletableFuture.runAsync(() -> {
-                 final Set<GifSearchCompletedEvent> result = this.gifQueryService.findGifsFromDb(hw);
-                 if(result.isEmpty()){
+         for (final HashWrapper hw : hashWrappers) {
+              CompletableFuture<Void> v = CompletableFuture.runAsync(() -> {
+                 final BatchGifSearchCompletedEvent result = this.gifQueryService.findGifsFromDb(hw, session);
+                 if(result.completedEventList().isEmpty()){
                      final ImageClientResponse clientResponse = this.imageClient.getFrameDescription(hw);
-                     this.gifClient.getGifs(clientResponse);
+                     this.gifClient.getGifs(clientResponse, session);
                  }
              }, this.taskExecutor)
-                     .exceptionally(e ->  {
-                         log.error("An unexpected error occurred", e);
-                         if(e instanceof ImageClientException){
-                             throw new ImageClientException();
-                         }
-                         throw new GifMatchingException(e);
-             });
+                     .whenComplete((result, e) -> {
+                         if(e != null)log.error("An unexpected error occurred", e);
+                     });
          }
+
 
     }
 

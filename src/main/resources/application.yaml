@@ -50,6 +50,13 @@ api:
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
+cookie:
+  max-age: 3600
+  http-only: true
+  secure: false
+  name: SESSION-COOKIE
+  path: /
+
 
 
 

@@ -2,6 +2,7 @@ package com.github.kusoroadeolu.revgif.services.impl;
 
 import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
 import com.github.kusoroadeolu.revgif.dtos.gif.BatchDownloadedGif;
+import com.github.kusoroadeolu.revgif.dtos.gif.BatchGifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.gif.DownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.HashedGif;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;
@@ -46,7 +47,7 @@ public class GifSimilarityMatcherImpl implements GifSimilarityMatcher {
     private final static String CLASS_NAME = GifSimilarityMatcherImpl.class.getSimpleName();
 
     @Override
-    public void extractAndHash(BatchDownloadedGif bdf){
+    public void extractAndHash(BatchDownloadedGif bdf, String session){
         final Hash hash = bdf.clientResponse().hash();
         final String format = bdf.clientResponse().format();
         final String query = bdf.clientResponse().searchQuery();
@@ -67,7 +68,7 @@ public class GifSimilarityMatcherImpl implements GifSimilarityMatcher {
         }
 
         CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)) //Wait for each future to complete before saving to the db
-                .thenRun(() -> this.applicationEventPublisher.publishEvent(this.gifMapper.toSearchCompletedEvent(similarGifs)))
+                .thenRun(() -> this.applicationEventPublisher.publishEvent(new BatchGifSearchCompletedEvent(this.gifMapper.toSearchCompletedEvent(similarGifs), session)))
                 .thenRun(() -> this.gifCommandService.batchSave(similarGifs))
                 .exceptionally(e -> {
                     log.error(this.logMapper.log(CLASS_NAME, "An unexpected error occurred: "), e);
@@ -76,7 +77,6 @@ public class GifSimilarityMatcherImpl implements GifSimilarityMatcher {
         log.info("Final size: {}", similarGifs.size());
 
     }
-
 
 
     private void compareHashAgainstFrames(HashedGif hf, Hash hash, String query, String format, List<Gif> gifs){

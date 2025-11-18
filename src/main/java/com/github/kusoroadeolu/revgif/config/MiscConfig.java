@@ -1,6 +1,7 @@
 package com.github.kusoroadeolu.revgif.config;
 
 import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
+import com.github.kusoroadeolu.revgif.dtos.SseWrapper;
 import dev.brachtendorf.jimagehash.hashAlgorithms.HashingAlgorithm;
 import dev.brachtendorf.jimagehash.hashAlgorithms.PerceptiveHash;
 import lombok.RequiredArgsConstructor;
@@ -34,13 +35,13 @@ public class MiscConfig {
     }
 
     @Bean
-    public Tika tika()  {
-        return new Tika();
+    public Map<String, SseWrapper> sseWrappers(){
+        return new ConcurrentHashMap<>();
     }
 
     @Bean
-    public Map<UUID, SseEmitter> emitters(){
-        return new ConcurrentHashMap<>();
+    public Tika tika()  {
+        return new Tika();
     }
 
     @Bean

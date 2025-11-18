@@ -6,7 +6,8 @@ import java.util.List;
 
 public record BatchNormalizedGif(
         List<NormalizedGif> results,
-        ImageClientResponse clientResponse
+        ImageClientResponse clientResponse,
+        String session
 ) {
     @Override
     public String toString() {

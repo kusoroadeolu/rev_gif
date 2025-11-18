@@ -36,19 +36,19 @@ public class TenorGifClient implements GifClient {
     private final static String CLASS_NAME = TenorGifClient.class.getSimpleName();
 
     @Override
-    public void getGifs(ImageClientResponse imageClientResponse){
+    public void getGifs(ImageClientResponse imageClientResponse, String session){
         final var queryParams = buildQueryParams(imageClientResponse);
         this.tenorWebClient.get()
                 .uri(uriBuilder -> uriBuilder.queryParams(queryParams).build())
                 .retrieve()
                 .bodyToMono(BatchTenorGif.class)
                 .map(bt -> {
-                    final BatchNormalizedGif bng = this.gifMapper.gifResults(bt, imageClientResponse);
+                    final BatchNormalizedGif bng = this.gifMapper.gifResults(bt, imageClientResponse, session);
                     log.info(this.logMapper.log(
                             CLASS_NAME,
                             "Tenor result for query %s: %s".formatted(imageClientResponse.searchQuery(), bng.toString())
                     ));
-                    this.eventPublisher.publishEvent(bng); //Publish event to gif download service
+                    this.eventPublisher.publishEvent(bng);
                     return bt;
                 })
                 .doOnError(e -> log.error(this.logMapper.log(
@@ -65,7 +65,7 @@ public class TenorGifClient implements GifClient {
                     );
                     return Mono.empty();
                 })
-                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2)))
+                .retryWhen(Retry.backoff(3, Duration.ofSeconds(2))) //TODO extract to config
                 .subscribe();
     }
 

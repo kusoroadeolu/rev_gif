@@ -46,6 +46,7 @@ public class GifCommandServiceImpl implements GifCommandService {
      * This method batch saves gifs and frames. Each gif is mapped to its tenor ID, batch saved and the gifs which were successfully saved are queried back.
      *</br> These requeried gifs are then used to find the frames mapped to each gif. These frames gif fk are populated then batch saved
      * @param gifs The list of gifs to save
+     * @throws GifPersistenceException On unexpected error
      * */
     @Transactional
     @Override

@@ -9,4 +9,8 @@ public class ImageClientException extends RuntimeException {
     public ImageClientException() {
         super();
     }
+
+    public ImageClientException(Throwable cause) {
+        super(cause);
+    }
 }

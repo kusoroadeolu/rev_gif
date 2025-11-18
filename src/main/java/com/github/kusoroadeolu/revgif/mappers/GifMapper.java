@@ -17,13 +17,13 @@ public class GifMapper {
 
     private final static String GIF = "gif";
 
-    public BatchNormalizedGif gifResults(BatchTenorGif batchTenorGif, ImageClientResponse imageClientResponse){
+    public BatchNormalizedGif gifResults(BatchTenorGif batchTenorGif, ImageClientResponse imageClientResponse, String session){
         final List<NormalizedGif> normalizedGifs = new ArrayList<>();
         for (TenorGif result : batchTenorGif.results()){
             normalizedGifs.add(this.gifResult(result));
         }
 
-        return new BatchNormalizedGif(normalizedGifs, imageClientResponse);
+        return new BatchNormalizedGif(normalizedGifs, imageClientResponse, session);
     }
 
     public GifSearchCompletedEvent toSearchCompletedEvent(Gif gif){

@@ -3,5 +3,5 @@ package com.github.kusoroadeolu.revgif.services;
 import com.github.kusoroadeolu.revgif.dtos.gif.BatchDownloadedGif;
 
 public interface GifSimilarityMatcher {
-    void extractAndHash(BatchDownloadedGif bdf);
+    void extractAndHash(BatchDownloadedGif bdf, String session);
 }
