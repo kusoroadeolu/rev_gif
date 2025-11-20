@@ -18,6 +18,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -33,16 +34,18 @@ public class FrameExtractorService {
 
     public List<FrameWrapper> extractFrames(@NonNull FileWrapper fileWrapper){
             final String format = this.getFileFormat(fileWrapper.contentType());
+            final byte[] b = fileWrapper.bytes();
+            if (b.length == 0)return List.of();
             return this.extractFramesFromMedia(fileWrapper.bytes(), format, ExtractionType.FROM_UPLOAD);
     }
 
     public List<FrameWrapper> extractFrames(byte[] b, @NonNull String format){
-        if(b.length == 0)return List.of();
+        if(b.length == 0) return List.of();
         return this.extractFramesFromMedia(b, format, ExtractionType.FROM_TENOR);
     }
 
 
-    public List<FrameWrapper> extractFramesFromMedia(byte[] b, String format, ExtractionType type){
+    private List<FrameWrapper> extractFramesFromMedia(byte[] b, String format, ExtractionType type){
         try(InputStream stream = new ByteArrayInputStream(b)){
             final ImageInputStream imageStream = ImageIO.createImageInputStream(stream);
             final ImageReader reader = ImageIO.getImageReadersByFormatName(format).next();
@@ -88,7 +91,7 @@ public class FrameExtractorService {
        return contentType.split("/")[1];
     }
 
-    enum ExtractionType {
+    private enum ExtractionType {
         FROM_UPLOAD,  //For uploads only extract a few frames across the gif/image
         FROM_TENOR   //For tenor gifs extract all frames
     }

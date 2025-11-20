@@ -10,9 +10,13 @@ import java.util.stream.Collectors;
 
 @Component
 public class FrameMapper {
-    public Set<Frame> toFrame(List<HashWrapper> hw){
+    public Set<Frame> toFrames(List<HashWrapper> hw){
         return hw.stream()
-                .map(h -> new Frame(null, h.hash().getHashValue().longValue(), h.frameWrapper().frameIdx(), 0))
+                .map(this::toFrame)
                 .collect(Collectors.toSet());
+    }
+
+    public Frame toFrame(HashWrapper h){
+        return new Frame(null, h.hash().getHashValue().longValue(), h.frameWrapper().frameIdx(), 0);
     }
 }

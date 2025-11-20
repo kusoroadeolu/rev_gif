@@ -2,6 +2,7 @@ package com.github.kusoroadeolu.revgif.config;
 
 import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,8 +20,11 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 
+import static com.github.kusoroadeolu.revgif.config.RedisConfig.*;
+
+@Slf4j
 @Configuration
-@EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
+@EnableRedisRepositories(keyspaceConfiguration = MyKeyspaceConfig.class, enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 @RequiredArgsConstructor
 public class RedisConfig {
 
@@ -41,6 +45,18 @@ public class RedisConfig {
         return redisTemplate;
     }
 
+    @Bean
+    public RedisTemplate<String, Long> redisTemplate(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper){
+        RedisTemplate<String, Long> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJacksonJsonRedisSerializer(objectMapper));
+        redisTemplate.setHashValueSerializer(new GenericJacksonJsonRedisSerializer(objectMapper));
+        redisTemplate.afterPropertiesSet();
+        return redisTemplate;
+    }
+
 
     public static class MyKeyspaceConfig extends KeyspaceConfiguration{
 
@@ -50,6 +66,7 @@ public class RedisConfig {
         @Override
         @NonNull
         protected Iterable<KeyspaceSettings> initialConfiguration() {
+            log.info("Prefix: {}", prefix);
             return Collections.singleton(new KeyspaceSettings(Session.class, prefix));
         }
     }

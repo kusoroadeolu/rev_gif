@@ -21,6 +21,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -61,6 +62,7 @@ public class GifSimilarityMatcher {
         for (final HashedGif hf : hashedGifs){
             var f = CompletableFuture.runAsync(() ->
                     this.compareHashAgainstFrames(hf, hash, query, format, similarGifs), this.taskExecutor);
+
             futures.add(f);
         }
 
@@ -69,28 +71,33 @@ public class GifSimilarityMatcher {
                 .thenRun(() -> this.gifCommandService.batchSave(similarGifs))
                 .exceptionally(e -> {
                     log.error(this.logMapper.log(CLASS_NAME, "An unexpected error occurred: "), e);
-                    throw new GifMatchingException(e);
+                    throw new GifMatchingException(e); //Don't publish an event here because this could be a db error and an error here is not too critical
                 });
-        log.info("Final size: {}", similarGifs.size());
-
     }
 
 
     private void compareHashAgainstFrames(HashedGif hf, Hash hash, String query, String format, List<Gif> gifs){
         try{
+
             final List<HashWrapper> hw = hf.hashWrappers();
+            final Set<Frame> similarFrames = new HashSet<>();  //Store similar frames not the whole collection of frames from the gifs
+            boolean hasAdded = false;
             for (HashWrapper h : hw){
                 final double hd = h.hash().normalizedHammingDistance(hash);
                 log.info("Hamming dist: {}", hd);
                 if(hd <= this.appConfigProperties.nmHammingThreshold()){
-                    final Set<Frame> frames = this.frameMapper.toFrame(hw);
-                    final Gif g = this.gifMapper.toGif(hf, query, format, frames);
+                    similarFrames.add(this.frameMapper.toFrame(h));
                     this.logMapper.log(CLASS_NAME, "Found similar gif. Hamming dist: %s".formatted(hd));
-                    gifs.add(g);
                     this.logMapper.log(CLASS_NAME, "Current list size: %s".formatted(gifs.size()));
-                    break;
+                    hasAdded = true;
                 }
             }
+
+            if (hasAdded){
+                final Gif g = this.gifMapper.toGif(hf, query, format, similarFrames);
+                gifs.add(g);
+            }
+
         }catch (Exception e){
             log.error("An unexpected error occurred while hashing frames", e);
         }

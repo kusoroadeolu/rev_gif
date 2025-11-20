@@ -1,9 +1,7 @@
 package com.github.kusoroadeolu.revgif.services;
 
 import com.github.kusoroadeolu.revgif.dtos.SseWrapper;
-import com.github.kusoroadeolu.revgif.dtos.events.BatchGifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.events.GifEvent;
-import com.github.kusoroadeolu.revgif.dtos.events.GifSearchErrorEvent;
 import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +14,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -59,8 +56,7 @@ public class SseService {
 
         final SseWrapper wrapper = this.sseWrappers.get(session);
         wrapper.sseEmitter().complete();
-        wrapper.executorService().shutdown();
-        this.sseWrappers.remove(session);
+        this.cleanup(session);
         log.info("Successfully cleaned up emitter. Session: {}", session);
     }
 
@@ -75,8 +71,12 @@ public class SseService {
                 emitter.send(event);
             }catch (IOException ex){
                 emitter.completeWithError(ex);
-                log.error("An IO ex occurred while streaming...");
-                sseWrappers.remove(session);
+                log.error("An IO ex occurred while streaming...", ex);
+                this.cleanup(session);
+            }catch (Exception ex){
+                emitter.completeWithError(ex);
+                log.error("An unexpected ex occurred while streaming...", ex);
+                this.cleanup(session);
             }
         });
     }
@@ -87,11 +87,18 @@ public class SseService {
 
         if(wrapper == null){
             final SseEmitter emitter = this.createEmitter(session);
-            wrapper = new SseWrapper(emitter, Executors.newVirtualThreadPerTaskExecutor(), LocalDateTime.now().plusMinutes(this.sseDuration));
+            wrapper = new SseWrapper(emitter, Executors.newVirtualThreadPerTaskExecutor());
             this.sseWrappers.put(session, wrapper);
         }
 
         return wrapper;
+    }
+
+    private void cleanup(String session){
+        final SseWrapper wrapper = this.sseWrappers.get(session);
+        wrapper.executorService().shutdown();
+        wrapper.executorService().close();
+        this.sseWrappers.remove(session);
     }
 
 }

@@ -14,7 +14,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableJdbcRepositories
-@EnableConfigurationProperties
 @EnableAsync
 @EnableScheduling
 @ConfigurationPropertiesScan

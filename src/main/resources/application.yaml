@@ -61,6 +61,10 @@ sse:
   duration: 1
   keyspace: session
 
+rate-limit:
+  req-per-minute: 5
+  key-ttl: 3
+
 web-client:
   ssl-handshake-timeout: 20
   response-timeout: 30

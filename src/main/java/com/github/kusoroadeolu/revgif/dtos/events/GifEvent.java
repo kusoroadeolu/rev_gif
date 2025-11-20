@@ -1,5 +1,5 @@
 package com.github.kusoroadeolu.revgif.dtos.events;
 
-public interface GifEvent {
+public sealed interface GifEvent permits BatchGifSearchCompletedEvent, GifSearchErrorEvent{
     String session();
 }
