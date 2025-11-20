@@ -26,9 +26,6 @@ public class SseService {
     private final Map<String, SseWrapper> sseWrappers;
     private final RedisTemplate<String, Session> sseTemplate;
 
-    @Value("{sse.keyspace}")
-    private String prefix;
-
     @Value("${sse.duration}")
     private int sseDuration;
 
@@ -38,7 +35,7 @@ public class SseService {
         emitter.onError(e -> sseWrappers.remove(session));
         emitter.onCompletion(() -> sseWrappers.remove(session));
         emitter.onTimeout(() -> sseWrappers.remove(session));
-        this.sseTemplate.opsForValue().set(prefix + ":" + session, new Session(session), this.sseDuration, TimeUnit.MINUTES);
+        this.sseTemplate.opsForValue().set("session:" + session, new Session(session), this.sseDuration, TimeUnit.MINUTES);
         return emitter;
     }
 
@@ -55,6 +52,7 @@ public class SseService {
         }
 
         final SseWrapper wrapper = this.sseWrappers.get(session);
+        if(wrapper == null) return;
         wrapper.sseEmitter().complete();
         this.cleanup(session);
         log.info("Successfully cleaned up emitter. Session: {}", session);
@@ -64,7 +62,6 @@ public class SseService {
     public void emit(String session, GifEvent event){
         final SseWrapper sseWrapper = this.getWrapper(session);
         final SseEmitter emitter = sseWrapper.sseEmitter();
-        log.info("Emitter: {}", emitter);
         sseWrapper.executorService().execute(() -> {
             try{
                 log.info("Streaming event to client");

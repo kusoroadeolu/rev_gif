@@ -60,14 +60,10 @@ public class RedisConfig {
 
     public static class MyKeyspaceConfig extends KeyspaceConfiguration{
 
-        @Value("{sse.keyspace}")
-        public String prefix;
-
         @Override
         @NonNull
         protected Iterable<KeyspaceSettings> initialConfiguration() {
-            log.info("Prefix: {}", prefix);
-            return Collections.singleton(new KeyspaceSettings(Session.class, prefix));
+            return Collections.singleton(new KeyspaceSettings(Session.class, "session"));
         }
     }
 

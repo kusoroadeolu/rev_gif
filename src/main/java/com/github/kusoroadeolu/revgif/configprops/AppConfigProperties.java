@@ -10,7 +10,6 @@ public record AppConfigProperties(
         Set<String> allowedFileFormats,
         int bitResolution,
         int expectedFrames,
-        int hammingThreshold,
         double nmHammingThreshold
 ) {
 

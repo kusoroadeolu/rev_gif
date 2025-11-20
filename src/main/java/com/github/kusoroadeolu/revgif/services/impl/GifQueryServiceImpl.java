@@ -29,7 +29,7 @@ public class GifQueryServiceImpl implements GifQueryService {
         final Hash hash = hashWrapper.hash();
         final long hashVal = hash.getHashValue().longValue();
         final Set<GifSearchCompletedEvent> res = this.frameRepository.compareByHash(hashVal,
-                this.appConfigProperties.hammingThreshold());
+                this.appConfigProperties.nmHammingThreshold());
         final BatchGifSearchCompletedEvent bg = new BatchGifSearchCompletedEvent(res, session);
 
         if(!res.isEmpty()){

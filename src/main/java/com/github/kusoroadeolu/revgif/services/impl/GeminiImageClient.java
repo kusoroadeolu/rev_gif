@@ -2,7 +2,6 @@ package com.github.kusoroadeolu.revgif.services.impl;
 
 import com.github.kusoroadeolu.revgif.configprops.GeminiConfigProperties;
 import com.github.kusoroadeolu.revgif.dtos.ImageClientResponse;
-import com.github.kusoroadeolu.revgif.exceptions.FileReadException;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 import com.github.kusoroadeolu.revgif.exceptions.ImageClientException;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
@@ -12,8 +11,6 @@ import com.google.genai.types.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.resilience.annotation.ConcurrencyLimit;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +18,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.concurrent.CompletionException;
 
 @Service
 @Slf4j
@@ -76,27 +72,36 @@ public class GeminiImageClient implements ImageClient {
 
 
     private final static String PROMPT =
-        """
-                Generate a 2-3 word GIF search query for this image.
-               \s
-                Priority order:
-                1. Named people/celebrities if recognizable → pair with ONE generic word only
-                   Examples: "obama face", "kardashian reaction", "rock eyebrow"
-                2. If no celebrity/named person/anime characters: primary emotion/action (max 2-3 words)
-                   Examples: "cringe reaction", "happy dance", "confused look"
-               \s
-                Rules:
-                - Keep it SHORT: 2-3 words maximum
-                - When celebrity is present: "[name] + [generic term]" (face/reaction/moment)
-                - When no celebrity: "[emotion] + [action/noun]"
-                - Use high-volume search terms people actually type
-                - Separate with spaces only
-               \s
-                Bad examples (too specific):
-                - "ishowspeed cringe face" → use "ishowspeed face"
-                - "cat knocking over guilty" → use "cat guilty"
-               \s
-                Output only the keywords, nothing else.\s
-       \s""";
+            """
+            Generate a 2-3 word GIF search query for this image.
+            
+            Priority order:
+            1. If real celebrity/public figure → "[name] [emotion/action]"
+               Examples: "obama laugh", "rock eyebrow", "kardashian crying"
+            
+            2. If anime/cartoon character:
+               - If recognizable character → "[character] [emotion]" OR "[show] [emotion]"
+                 Examples: "goku power", "naruto run", "demon slayer shock"
+               - If generic anime style → "anime [emotion]"
+                 Examples: "anime blush", "anime cry", "anime confused"
+            
+            3. If meme/reaction format → describe the reaction type
+               Examples: "awkward silence", "internal screaming", "visible confusion"
+            
+            4. If clear emotion/action → "[emotion] [optional context]"
+               Examples: "excited", "facepalm", "eye roll", "happy dance"
+            
+            5. If abstract/weird → focus on visual mood or closest emotion
+               Examples: "chaotic", "cursed", "wtf", "confused"
+            
+            Rules:
+            - Maximum 3 words, prefer 2
+            - Use common search terms people actually type
+            - For anime: include "anime" keyword if character not famous
+            - Avoid overly specific descriptions
+            - Choose high-volume terms over precise descriptions
+            
+            Output ONLY the search keywords, nothing else.
+            """;
 
 }

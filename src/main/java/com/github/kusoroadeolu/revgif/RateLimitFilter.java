@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
@@ -26,14 +27,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final RateLimitConfigProperties rateLimitConfigProperties;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String ip = request.getRemoteAddr();
         try{
             this.rateLimit(ip);
         }catch (RateLimitException e){
             response.sendError(429, "Too many requests. Slow down...");
         }
-
+        filterChain.doFilter(request, response);
     }
 
     private void rateLimit(final String ip) throws RateLimitException{
