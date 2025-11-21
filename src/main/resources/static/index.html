@@ -50,6 +50,76 @@
                     radial-gradient(circle at 90% 80%, rgba(43, 134, 197, 0.1) 0%, transparent 40%);
         }
 
+        /* Loading Spinner - Top Left */
+        .search-spinner {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 229, 59, 0.3);
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(255, 229, 59, 0.2);
+        }
+
+        .search-spinner.active {
+            display: flex;
+        }
+
+        .spinner-icon {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 229, 59, 0.2);
+            border-top-color: var(--accent-yellow);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .spinner-text {
+            color: var(--accent-yellow);
+            font-size: 14px;
+            font-family: 'MiSans Bold', sans-serif;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Toast */
+        .error-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 60, 80, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 16px 24px;
+            border-radius: 12px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(255, 60, 80, 0.3);
+        }
+
+        .error-toast.active {
+            display: flex;
+        }
+
+        .error-toast i {
+            font-size: 24px;
+        }
+
+        .error-toast-message {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
         /* Header Section */
         header {
             padding: 40px 0;
@@ -125,6 +195,11 @@
             box-shadow: 0 30px 60px rgba(255, 60, 172, 0.15);
         }
 
+        .upload-section.dragover {
+            border-color: var(--accent-yellow);
+            background: rgba(255, 229, 59, 0.05);
+        }
+
         .upload-icon {
             font-size: 80px;
             background: var(--primary-gradient);
@@ -169,6 +244,12 @@
             box-shadow: 0 15px 35px rgba(43, 134, 197, 0.5);
         }
 
+        .btn-upload:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-upload::before {
             content: '';
             position: absolute;
@@ -184,7 +265,19 @@
             left: 100%;
         }
 
-        /* Results Grid - Masonry */
+        #fileInput {
+            display: none;
+        }
+
+        /* Results Section */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
         .results-header {
             display: flex;
             justify-content: space-between;
@@ -226,6 +319,18 @@
             transform: translateZ(0);
             transition: all 0.3s ease;
             border: 1px solid rgba(255,255,255,0.05);
+            animation: cardFadeIn 0.4s ease-out;
+        }
+
+        @keyframes cardFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .gif-card:hover {
@@ -299,63 +404,24 @@
             opacity: 0.1;
         }
 
-        /* Tag styles */
-        .tags {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        .tag {
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: 0.3s;
-        }
-
-        .tag:hover {
-            background: rgba(255,255,255,0.2);
-            color: #fff;
-            border-color: rgba(255,255,255,0.4);
-        }
-
         @keyframes float {
             0% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
             100% { transform: translateY(0px); }
         }
 
-        /* Loading Indicator Simulation */
-        .status-bar {
-            height: 4px;
-            width: 200px;
-            background: rgba(255,255,255,0.1);
-            margin: 20px auto 0;
-            border-radius: 2px;
-            overflow: hidden;
-            position: relative;
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
         }
 
-        .status-bar-inner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 60%;
-            background: var(--secondary-gradient);
-            animation: loading 2s infinite linear;
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
         }
-
-        @keyframes loading {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-
     </style>
 </head>
 <body>
@@ -364,6 +430,18 @@
 <div class="bg-shape shape-2"></div>
 <div class="bg-shape shape-3"></div>
 
+<!-- Loading Spinner -->
+<div class="search-spinner" id="searchSpinner">
+    <div class="spinner-icon"></div>
+    <span class="spinner-text">Searching...</span>
+</div>
+
+<!-- Error Toast -->
+<div class="error-toast" id="errorToast">
+    <i class="ri-error-warning-line"></i>
+    <span class="error-toast-message" id="errorMessage"></span>
+</div>
+
 <header>
     <div class="logo">RevGif</div>
     <div class="subtitle">Find the perfect loop for your mood</div>
@@ -371,96 +449,29 @@
 
 <div class="container">
     <!-- Upload Section -->
-    <div class="upload-section">
+    <div class="upload-section" id="uploadSection">
         <div class="upload-icon">
             <i class="ri-folder-upload-line"></i>
         </div>
         <div class="upload-text">Drag & Drop your GIF</div>
-        <div class="upload-subtext"> to reverse search the source</div>
+        <div class="upload-subtext">to reverse search the source</div>
 
-        <button class="btn-upload">
+        <input type="file" id="fileInput" accept="image/gif,image/*">
+        <button class="btn-upload" id="uploadBtn">
             <i class="ri-search-eye-line"></i>
             Upload & Search
         </button>
-
-        <!-- Mock Loading State -->
-        <div class="status-bar">
-            <div class="status-bar-inner"></div>
-        </div>
     </div>
 
-    <!-- Results Grid -->
-    <div class="results-header">
-        <div class="results-title">Found Gifs</div>
-    </div>
-
-    <div class="grid-container">
-
-        <!-- Card 1: Tall -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1531259683007-016a7b628fc3?q=80&w=800&auto=format&fit=crop" alt="Cyberpunk Vibes">
-            <div class="card-overlay">
-                <div class="card-description">Neon lights reflecting off wet streets in a futuristic cityscape</div>
-            </div>
+    <!-- Results Section (hidden initially) -->
+    <div class="results-section" id="resultsSection">
+        <div class="results-header">
+            <div class="results-title">Found GIFs</div>
         </div>
-
-        <!-- Card 2: Wide -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop" alt="Cute Cat">
-            <div class="card-overlay">
-                <div class="card-description">Adorable cat with a confused and curious expression</div>
-            </div>
-        </div>
-
-        <!-- Card 3: Square -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?q=80&w=800&auto=format&fit=crop" alt="Funny Dog">
-            <div class="card-overlay">
-                <div class="card-description">Happy dog celebrating the weekend with pure joy</div>
-            </div>
-        </div>
-
-        <!-- Card 4: Tall -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop" alt="Retro TV">
-            <div class="card-overlay">
-                <div class="card-description">Vintage television set with glitchy retro vibes</div>
-            </div>
-        </div>
-
-        <!-- Card 5: Wide -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop" alt="Party Event">
-            <div class="card-overlay">
-                <div class="card-description">Energetic party scene with colorful lights and celebration</div>
-            </div>
-        </div>
-
-        <!-- Card 6: Tall -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?q=80&w=800&auto=format&fit=crop" alt="Anime Style Art">
-            <div class="card-overlay">
-                <div class="card-description">Dreamy pixel art with vibrant colors and nostalgic aesthetics</div>
-            </div>
-        </div>
-
-        <!-- Card 7: Square -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=800&auto=format&fit=crop" alt="Modern Architecture">
-            <div class="card-overlay">
-                <div class="card-description">Satisfying geometric patterns in modern architecture</div>
-            </div>
-        </div>
-
-        <!-- Card 8: Tall -->
-        <div class="gif-card">
-            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" alt="Portrait Model">
-            <div class="card-overlay">
-                <div class="card-description">Portrait capturing the mood and energy of a Monday morning</div>
-            </div>
-        </div>
-
+        <div class="grid-container" id="gridContainer"></div>
     </div>
 </div>
+
+<script src="gif.js"></script>
 </body>
 </html>

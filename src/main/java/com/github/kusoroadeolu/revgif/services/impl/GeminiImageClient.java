@@ -75,33 +75,45 @@ public class GeminiImageClient implements ImageClient {
             """
             Generate a 2-3 word GIF search query for this image.
             
-            Priority order:
-            1. If real celebrity/public figure → "[name] [emotion/action]"
-               Examples: "obama laugh", "rock eyebrow", "kardashian crying"
+            STEP 1: If there's a person, TRY TO IDENTIFY THEM.
+            - Use Google Search if needed to identify celebrities, streamers, influencers, athletes, etc.
             
-            2. If anime/cartoon character:
-               - If recognizable character → "[character] [emotion]" OR "[show] [emotion]"
-                 Examples: "goku power", "naruto run", "demon slayer shock"
-               - If generic anime style → "anime [emotion]"
-                 Examples: "anime blush", "anime cry", "anime confused"
+            STEP 2: Identify the MOST PROMINENT visual element:
+            - Is there an object they're interacting with? (phone, mic, controller, food, etc.)
+            - Is a specific body part the focus? (face, hands, eyes, eyebrow)
+            - Is it just their general reaction?
             
-            3. If meme/reaction format → describe the reaction type
-               Examples: "awkward silence", "internal screaming", "visible confusion"
+            Priority for visual anchor:
+            1. Object being used/held → phone, mic, controller, car, food
+            2. Body part in focus → face, hands, eyes, eyebrow, mouth
+            3. Action being performed → run, dance, scream, stare
             
-            4. If clear emotion/action → "[emotion] [optional context]"
-               Examples: "excited", "facepalm", "eye roll", "happy dance"
+            STEP 3: Build the query:
             
-            5. If abstract/weird → focus on visual mood or closest emotion
-               Examples: "chaotic", "cursed", "wtf", "confused"
+            1. Identified person → "[name] [object/body part/action]"
+               Examples: speed mic, speed phone, rock eyebrow, khaby hands, lebron phone
+               - Prefer objects over face if object is prominent
+            
+            2. Anime/cartoon → "[character/show] [visual]" or "anime [visual]"
+               Examples: goku scream, anime blush
+            
+            3. Unidentifiable person → "[emotion] face"
+               Examples: confused face, shocked reaction
+            
+            4. No person → "[subject] [action]"
+               Examples: cat stare, dog side eye
+            
+            5. Abstract → cursed, chaotic, wtf
             
             Rules:
-            - Maximum 3 words, prefer 2
-            - Use common search terms people actually type
-            - For anime: include "anime" keyword if character not famous
-            - Avoid overly specific descriptions
-            - Choose high-volume terms over precise descriptions
+            - 2-3 words max
+            - Object > body part > emotion (if object is prominent, use it!)
+            - NO literal descriptions (pursed lips, furrowed brow)
             
-            Output ONLY the search keywords, nothing else.
+            CRITICAL: Output ONLY the final keywords. No explanation. No reasoning. Just the 2-3 word query.
+            
+            WRONG: "The person is X, so the query is Y"
+            RIGHT: speed mic
             """;
 
 }

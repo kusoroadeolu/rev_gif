@@ -12,8 +12,8 @@ public interface FrameRepository extends ListCrudRepository<Frame, Integer> {
             SELECT g.tenor_url, g.description, g.mime_type
             FROM frames f
                     INNER JOIN gifs g ON f.gifs = g.id
-            WHERE BIT_COUNT(((f.p_hash # :userFrameHash)/64)::BIT(64)) < :threshold
-            ORDER BY BIT_COUNT((f.p_hash # :userFrameHash)::BIT(64))
+            WHERE BIT_COUNT((f.p_hash # :userFrameHash)::BIT(64)) / 64.0 < :threshold
+            ORDER BY BIT_COUNT((f.p_hash # :userFrameHash)::BIT(64)) / 64.0
             LIMIT 10;
             """)
     public Set<GifSearchCompletedEvent> compareByHash(long userFrameHash, double threshold);

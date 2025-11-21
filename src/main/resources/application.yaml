@@ -8,7 +8,7 @@ spring:
       - image/webp
     bit-resolution: 64
     expected_frames: 4 # To save costs lol
-    nm-hamming-threshold: 0.45 # normalized hamming dist. I landed on this thru trial and error(.45 * 64 = 28.8, might return some false postives but lesser than this could be too strict)
+    nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this thru trial and error(.41 * 64, might return some false postives but lesser than this could be too strict)
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -30,7 +30,6 @@ spring:
 api:
   gemini:
     api-key: ${GEMINI_API_KEY}
-    prompt: In not more than 7 words, describe the main action or emotion in this image as a GIF search query. Respond with ONLY the search terms, no other text
     model: gemini-2.5-flash
     retry-attempts: 3
     status-codes:    #status codes to retry for
@@ -45,7 +44,7 @@ api:
     base-url: https://tenor.googleapis.com/v2/search
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
-    limit: 5
+    limit: 10
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
@@ -58,7 +57,6 @@ cookie:
 
 sse:
   duration: 3
-  keyspace: session
 
 rate-limit:
   req-per-minute: 5

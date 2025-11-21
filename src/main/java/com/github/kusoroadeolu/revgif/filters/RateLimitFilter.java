@@ -1,4 +1,4 @@
-package com.github.kusoroadeolu.revgif;
+package com.github.kusoroadeolu.revgif.filters;
 
 import com.github.kusoroadeolu.revgif.configprops.RateLimitConfigProperties;
 import com.github.kusoroadeolu.revgif.exceptions.RateLimitException;
@@ -47,8 +47,8 @@ public class RateLimitFilter extends OncePerRequestFilter {
         final String currKey = this.buildKey(ip, currentMin);
 
         final Long requestsThisMin = valueOperations.increment(currKey , 1L);
-        Long requestsLastMin = (Long) ((Number) valueOperations.get(this.buildKey(ip, prevMinute)));
-        if(requestsLastMin == null) requestsLastMin = 0L;
+        final Number obj = valueOperations.get(this.buildKey(ip, prevMinute));
+        final long requestsLastMin = obj != null ? obj.longValue() : 0L;
 
         final double avgRequests = ((requestsThisMin * elapsedSec) + (requestsLastMin * secFromLastMin)) / 60.0;
         if(avgRequests > this.rateLimitConfigProperties.reqPerMinute())throw new RateLimitException();

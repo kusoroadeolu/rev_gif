@@ -1,6 +1,6 @@
 package com.github.kusoroadeolu.revgif.config;
 
-import com.github.kusoroadeolu.revgif.RateLimitFilter;
+import com.github.kusoroadeolu.revgif.filters.RateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

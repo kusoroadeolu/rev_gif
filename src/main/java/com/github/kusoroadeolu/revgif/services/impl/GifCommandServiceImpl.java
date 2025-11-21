@@ -38,7 +38,7 @@ public class GifCommandServiceImpl implements GifCommandService {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private final static String CLASS_NAME = GifCommandServiceImpl.class.getSimpleName();
     private final LogMapper logMapper;
-    private final static String BATCH_GIF_INSERT = "INSERT INTO gifs(mime_type, description, tenor_id, tenor_url, search_query) VALUES (?,?,?,?,?) ON CONFLICT(tenor_id) DO NOTHING";
+    private final static String BATCH_GIF_INSERT = "INSERT INTO gifs(mime_type, description, tenor_id, tenor_url, search_query) VALUES (?,?,?,?,?) ON CONFLICT(tenor_url) DO NOTHING";
     private final static String BATCH_FRAME_INSERT = "INSERT INTO frames(p_hash, frame_idx, gifs) VALUES (?, ?, ?)";
     private final static String SAVED_GIF_QUERY = "SELECT * from gifs WHERE id IN (:id)";
 
