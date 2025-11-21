@@ -47,7 +47,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         final String currKey = this.buildKey(ip, currentMin);
 
         final Long requestsThisMin = valueOperations.increment(currKey , 1L);
-        Long requestsLastMin = valueOperations.get(this.buildKey(ip, prevMinute));
+        Long requestsLastMin = (Long) ((Number) valueOperations.get(this.buildKey(ip, prevMinute)));
         if(requestsLastMin == null) requestsLastMin = 0L;
 
         final double avgRequests = ((requestsThisMin * elapsedSec) + (requestsLastMin * secFromLastMin)) / 60.0;

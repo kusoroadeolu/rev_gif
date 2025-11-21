@@ -27,7 +27,7 @@ public class GifMapper {
     }
 
     public GifSearchCompletedEvent toSearchCompletedEvent(Gif gif){
-        return new GifSearchCompletedEvent(gif.getTenorUrl(), gif.getDescription(), gif.getMimeType());
+        return new GifSearchCompletedEvent(gif.getTenorUrl(), gif.getDescription());
     }
 
     public List<GifSearchCompletedEvent> toSearchCompletedEvent(Collection<Gif> gif){

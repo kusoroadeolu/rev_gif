@@ -32,16 +32,17 @@ public class UploadOrchestrator {
     private final GifQueryService gifQueryService;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final GifClient gifClient;
-    private final GifCommandService gifCommandService;
+    private final SseService sseService;
     private final TaskExecutor taskExecutor;  //Virtual thread task exec
 
     public void orchestrate(byte[] b, String session){
          final FileWrapper fileWrapper = this.validatorService.validateFile(b);
          final List<FrameWrapper> frameWrappers = this.frameExtractor.extractFrames(fileWrapper);
          final List<HashWrapper> hashWrappers = this.hashingService.hashFrames(frameWrappers);
+         this.sseService.updateExpectedEvents(session, frameWrappers.size());
 
          for (final HashWrapper hw : hashWrappers) {
-              CompletableFuture<Void> v = CompletableFuture.runAsync(() -> {
+               CompletableFuture.runAsync(() -> {
                   try {
                       final BatchGifSearchCompletedEvent result = this.gifQueryService.findGifsFromDb(hw, session);
                       if (result.completedEventList().isEmpty()) {

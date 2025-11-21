@@ -1,6 +1,6 @@
 package com.github.kusoroadeolu.revgif.services;
 
-import com.github.kusoroadeolu.revgif.dtos.SseWrapper;
+import com.github.kusoroadeolu.revgif.dtos.wrappers.SseWrapper;
 import com.github.kusoroadeolu.revgif.dtos.events.GifEvent;
 import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;
@@ -30,15 +30,21 @@ public class SseService {
     private int sseDuration;
 
 
-    private SseEmitter createEmitter(String session){
+    public SseEmitter createEmitter(String session){
         SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-        emitter.onError(e -> sseWrappers.remove(session));
-        emitter.onCompletion(() -> sseWrappers.remove(session));
-        emitter.onTimeout(() -> sseWrappers.remove(session));
+        emitter.onError(e -> this.sseWrappers.remove(session));
+        emitter.onCompletion(() -> this.sseWrappers.remove(session));
+        emitter.onTimeout(() -> this.sseWrappers.remove(session));
         this.sseTemplate.opsForValue().set("session:" + session, new Session(session), this.sseDuration, TimeUnit.MINUTES);
+        this.sseWrappers.put(session, new SseWrapper(emitter, Executors.newVirtualThreadPerTaskExecutor()));
         return emitter;
     }
 
+
+    public void updateExpectedEvents(String session, int expected){
+       final SseWrapper wrapper = this.sseWrappers.get(session);
+       wrapper.setExpectedEvents(expected);
+    }
 
     @EventListener
     public void listenForSseExpiry(RedisKeyExpiredEvent<Session> expiredEvent){
@@ -52,9 +58,10 @@ public class SseService {
         }
 
         final SseWrapper wrapper = this.sseWrappers.get(session);
-        if(wrapper == null) return;
-        wrapper.sseEmitter().complete();
-        this.cleanup(session);
+        if(wrapper != null && !wrapper.isCompleted()){
+            this.cleanup(session);
+        }
+        this.sseWrappers.remove(session);
         log.info("Successfully cleaned up emitter. Session: {}", session);
     }
 
@@ -66,6 +73,8 @@ public class SseService {
             try{
                 log.info("Streaming event to client");
                 emitter.send(event);
+                sseWrapper.increment();
+                sseWrapper.cleanupIfNeeded();
             }catch (IOException ex){
                 emitter.completeWithError(ex);
                 log.error("An IO ex occurred while streaming...", ex);
@@ -76,16 +85,16 @@ public class SseService {
                 this.cleanup(session);
             }
         });
+
     }
 
 
     public SseWrapper getWrapper(String session){
         SseWrapper wrapper = this.sseWrappers.get(session);
+        log.info("Sse wrapper: {}", wrapper);
 
         if(wrapper == null){
-            final SseEmitter emitter = this.createEmitter(session);
-            wrapper = new SseWrapper(emitter, Executors.newVirtualThreadPerTaskExecutor());
-            this.sseWrappers.put(session, wrapper);
+            throw new RuntimeException("Sse wrapper cannot be null");
         }
 
         return wrapper;
@@ -93,9 +102,7 @@ public class SseService {
 
     private void cleanup(String session){
         final SseWrapper wrapper = this.sseWrappers.get(session);
-        wrapper.executorService().shutdown();
-        wrapper.executorService().close();
-        this.sseWrappers.remove(session);
+        wrapper.cleanupIfNeeded();
     }
 
 }

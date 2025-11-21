@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RevGif - Vibrant GIF Search</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Dela Gothic One';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/DelaGothicOne-Regular.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'MiSans';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/MiSans-Medium.ttf') format('truetype');
+        }
+        @font-face {
+            font-family: 'MiSans Bold';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/MiSans-Bold.ttf') format('truetype');
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
+            --secondary-gradient: linear-gradient(135deg, #FA8BFF 0%, #2BD2FF 52%, #2BFF88 90%);
+            --bg-color: #121212;
+            --card-bg: #1E1E1E;
+            --text-main: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-pink: #FF3CAC;
+            --accent-blue: #2B86C5;
+            --accent-yellow: #FFE53B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            max-width: 1920px;
+            margin: 0 auto;
+            background-color: var(--bg-color);
+            font-family: 'MiSans', sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image:
+                    radial-gradient(circle at 10% 20%, rgba(255, 60, 172, 0.08) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(43, 134, 197, 0.1) 0%, transparent 40%);
+        }
+
+        /* Header Section */
+        header {
+            padding: 40px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .logo {
+            font-family: 'Dela Gothic One', cursive;
+            font-size: 120px;
+            letter-spacing: -4px;
+            background: var(--secondary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(43, 210, 255, 0.3);
+            position: relative;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .logo::after {
+            content: 'SEARCH';
+            position: absolute;
+            bottom: -10px;
+            right: -40px;
+            font-family: 'MiSans Bold', sans-serif;
+            font-size: 24px;
+            letter-spacing: 4px;
+            background: #fff;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: #fff;
+            transform: rotate(-10deg);
+            padding: 4px 12px;
+            border: 2px solid #fff;
+            border-radius: 20px;
+            box-shadow: 4px 4px 0px var(--accent-pink);
+        }
+
+        .subtitle {
+            margin-top: 20px;
+            font-size: 24px;
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 40px 60px 40px;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            margin: 50px auto 80px;
+            max-width: 1000px;
+            background: rgba(30, 30, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 60px;
+            text-align: center;
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .upload-section:hover {
+            border-color: var(--accent-pink);
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(255, 60, 172, 0.15);
+        }
+
+        .upload-icon {
+            font-size: 80px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .upload-text {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-family: 'MiSans Bold', sans-serif;
+        }
+
+        .upload-subtext {
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .btn-upload {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            font-size: 24px;
+            font-family: 'MiSans Bold', sans-serif;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 25px rgba(255, 60, 172, 0.4);
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-upload:hover {
+            transform: scale(1.05) rotate(-1deg);
+            box-shadow: 0 15px 35px rgba(43, 134, 197, 0.5);
+        }
+
+        .btn-upload::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-upload:hover::before {
+            left: 100%;
+        }
+
+        /* Results Grid - Masonry */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .results-title {
+            font-size: 32px;
+            font-family: 'MiSans Bold', sans-serif;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .results-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 32px;
+            background: var(--accent-yellow);
+            border-radius: 4px;
+        }
+
+        .grid-container {
+            column-count: 4;
+            column-gap: 20px;
+        }
+
+        .gif-card {
+            break-inside: avoid;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            transform: translateZ(0);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .gif-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            z-index: 2;
+        }
+
+        .gif-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 70%, rgba(0,0,0,0) 100%);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .gif-card:hover .card-overlay {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-description {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #fff;
+        }
+
+        /* Decorative Elements */
+        .bg-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-pink);
+            top: -100px;
+            left: -100px;
+            opacity: 0.2;
+        }
+
+        .shape-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--accent-blue);
+            bottom: -200px;
+            right: -200px;
+            opacity: 0.15;
+        }
+
+        .shape-3 {
+            width: 200px;
+            height: 200px;
+            background: var(--accent-yellow);
+            top: 40%;
+            left: 60%;
+            opacity: 0.1;
+        }
+
+        /* Tag styles */
+        .tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .tag {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.3s;
+        }
+
+        .tag:hover {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* Loading Indicator Simulation */
+        .status-bar {
+            height: 4px;
+            width: 200px;
+            background: rgba(255,255,255,0.1);
+            margin: 20px auto 0;
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .status-bar-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 60%;
+            background: var(--secondary-gradient);
+            animation: loading 2s infinite linear;
+        }
+
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="bg-shape shape-1"></div>
+<div class="bg-shape shape-2"></div>
+<div class="bg-shape shape-3"></div>
+
+<header>
+    <div class="logo">RevGif</div>
+    <div class="subtitle">Find the perfect loop for your mood</div>
+</header>
+
+<div class="container">
+    <!-- Upload Section -->
+    <div class="upload-section">
+        <div class="upload-icon">
+            <i class="ri-folder-upload-line"></i>
+        </div>
+        <div class="upload-text">Drag & Drop your GIF</div>
+        <div class="upload-subtext"> to reverse search the source</div>
+
+        <button class="btn-upload">
+            <i class="ri-search-eye-line"></i>
+            Upload & Search
+        </button>
+
+        <!-- Mock Loading State -->
+        <div class="status-bar">
+            <div class="status-bar-inner"></div>
+        </div>
+    </div>
+
+    <!-- Results Grid -->
+    <div class="results-header">
+        <div class="results-title">Found Gifs</div>
+    </div>
+
+    <div class="grid-container">
+
+        <!-- Card 1: Tall -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1531259683007-016a7b628fc3?q=80&w=800&auto=format&fit=crop" alt="Cyberpunk Vibes">
+            <div class="card-overlay">
+                <div class="card-description">Neon lights reflecting off wet streets in a futuristic cityscape</div>
+            </div>
+        </div>
+
+        <!-- Card 2: Wide -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop" alt="Cute Cat">
+            <div class="card-overlay">
+                <div class="card-description">Adorable cat with a confused and curious expression</div>
+            </div>
+        </div>
+
+        <!-- Card 3: Square -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1541364983171-a8ba01e95cfc?q=80&w=800&auto=format&fit=crop" alt="Funny Dog">
+            <div class="card-overlay">
+                <div class="card-description">Happy dog celebrating the weekend with pure joy</div>
+            </div>
+        </div>
+
+        <!-- Card 4: Tall -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=800&auto=format&fit=crop" alt="Retro TV">
+            <div class="card-overlay">
+                <div class="card-description">Vintage television set with glitchy retro vibes</div>
+            </div>
+        </div>
+
+        <!-- Card 5: Wide -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=800&auto=format&fit=crop" alt="Party Event">
+            <div class="card-overlay">
+                <div class="card-description">Energetic party scene with colorful lights and celebration</div>
+            </div>
+        </div>
+
+        <!-- Card 6: Tall -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?q=80&w=800&auto=format&fit=crop" alt="Anime Style Art">
+            <div class="card-overlay">
+                <div class="card-description">Dreamy pixel art with vibrant colors and nostalgic aesthetics</div>
+            </div>
+        </div>
+
+        <!-- Card 7: Square -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=800&auto=format&fit=crop" alt="Modern Architecture">
+            <div class="card-overlay">
+                <div class="card-description">Satisfying geometric patterns in modern architecture</div>
+            </div>
+        </div>
+
+        <!-- Card 8: Tall -->
+        <div class="gif-card">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format&fit=crop" alt="Portrait Model">
+            <div class="card-overlay">
+                <div class="card-description">Portrait capturing the mood and energy of a Monday morning</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</body>
+</html>

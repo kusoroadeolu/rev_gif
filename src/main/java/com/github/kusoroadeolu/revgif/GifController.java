@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,11 +34,8 @@ public class GifController {
     @GetMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<@NonNull SseEmitter> upload(@RequestParam("file") MultipartFile file, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final Cookie cookie = this.cookieUtils.getCookie(request);
-        this.cookieUtils.addCookie(request, response, cookie);
-        final String session = cookie.getValue();
-        final SseEmitter emitter = this.sseService.getWrapper(session)
-                .sseEmitter();
+        final String session = UUID.randomUUID().toString();
+        final SseEmitter emitter = this.sseService.createEmitter(session);
         orchestrator.orchestrate(file.getBytes(), session);
         return new ResponseEntity<>(emitter, HttpStatus.OK);
     }
