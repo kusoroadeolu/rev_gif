@@ -36,7 +36,7 @@ public class SseService {
         emitter.onCompletion(() -> this.sseWrappers.remove(session));
         emitter.onTimeout(() -> this.sseWrappers.remove(session));
         this.sseTemplate.opsForValue().set("session:" + session, new Session(session), this.sseDuration, TimeUnit.MINUTES);
-        this.sseWrappers.put(session, new SseWrapper(emitter, Executors.newVirtualThreadPerTaskExecutor()));
+        this.sseWrappers.put(session, new SseWrapper(emitter, Executors.newSingleThreadExecutor(Thread.ofVirtual().factory())));
         return emitter;
     }
 
@@ -64,7 +64,6 @@ public class SseService {
         this.sseWrappers.remove(session);
         log.info("Successfully cleaned up emitter. Session: {}", session);
     }
-
 
     public void emit(String session, GifEvent event){
         final SseWrapper sseWrapper = this.getWrapper(session);
