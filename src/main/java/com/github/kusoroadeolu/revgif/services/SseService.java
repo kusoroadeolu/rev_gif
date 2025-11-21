@@ -101,7 +101,7 @@ public class SseService {
 
     private void cleanup(String session){
         final SseWrapper wrapper = this.sseWrappers.get(session);
-        wrapper.cleanupIfNeeded();
+        wrapper.cleanup();
     }
 
 }

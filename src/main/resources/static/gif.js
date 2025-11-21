@@ -53,17 +53,25 @@ function showError(message) {
 
 function clearResults() {
     gridContainer.innerHTML = '';
+    resultsSection.classList.remove('active');
 }
 
 function addGifCard(tenorUrl, description) {
     const card = document.createElement('div');
     card.className = 'gif-card';
+    card.style.cursor = 'pointer';
     card.innerHTML = `
             <img src="${tenorUrl}" alt="${description}">
             <div class="card-overlay">
                 <div class="card-description">${description}</div>
             </div>
         `;
+
+    // Open GIF in new tab when clicked
+    card.addEventListener('click', () => {
+        window.open(tenorUrl, '_blank');
+    });
+
     gridContainer.appendChild(card);
 
     // Show results section if hidden
@@ -71,7 +79,7 @@ function addGifCard(tenorUrl, description) {
 }
 
 async function startSearch(file) {
-    // Reset state
+    // Reset state - clear everything first
     clearResults();
     hideSpinner();
     errorToast.classList.remove('active');

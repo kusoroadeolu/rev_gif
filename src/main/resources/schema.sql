@@ -11,12 +11,12 @@ CREATE TABLE gifs (
 
 CREATE TABLE frames(
     id BIGSERIAL PRIMARY KEY,
-    p_hash BIGINT NOT NULL ,
-    frame_idx INT NOT NULL ,
+    p_hash BIGINT NOT NULL,
+    frame_idx INT NOT NULL,
+    nm_hamming_dist DOUBLE PRECISION NOT NULL,
     gifs BIGINT NOT NULL,
     FOREIGN KEY (gifs) REFERENCES gifs(id) ON DELETE CASCADE
 );
-
 
 CREATE INDEX idx_p_hashes ON frames(p_hash);
 CREATE INDEX idx_gifs ON frames(gifs);

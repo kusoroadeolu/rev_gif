@@ -4,8 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 public class SseWrapper {
@@ -34,6 +32,11 @@ public class SseWrapper {
     public synchronized void cleanupIfNeeded(){
         log.info("Cleanup check. Events received: {}", this.eventsReceived());
         if(this.eventsReceived() >= this.expectedEvents){
+            this.cleanup();
+        }
+    }
+
+    public synchronized void cleanup(){
             this.state = State.COMPLETING;
             if(this.sseEmitter != null){
                 this.sseEmitter.complete();
@@ -46,7 +49,7 @@ public class SseWrapper {
 
             this.state = State.COMPLETED;
             IO.println("Successfully cleaned up the sse emitter. Events expected: %s, Events received: %s".formatted(this.expectedEvents, this.eventsReceived()));
-        }
+
     }
 
     public int expectedEvents() {

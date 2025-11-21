@@ -14,6 +14,8 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,7 +62,7 @@ public class FrameExtractorService {
                 };
             }
 
-            final BufferedImage image = reader.read(IMAGE_START_IDX);
+            final BufferedImage image = this.applyBlur(reader.read(IMAGE_START_IDX), 3);
             return List.of(new FrameWrapper(IMAGE_START_IDX, image, format));
         }catch (IOException e){
             log.info(this.logMapper.log(CLASS_NAME, "An IO ex occurred while trying to extract frames from file. Content type: %s".formatted(format)));
@@ -85,6 +87,39 @@ public class FrameExtractorService {
             wrappers.add(new FrameWrapper(i, bufferedImage, format));
         }
         return wrappers;
+    }
+
+
+    //Apply a slight gaussian blur to this image
+    private BufferedImage applyBlur(BufferedImage img, int radius){
+        Kernel kernel = createGaussianKernel(radius);
+        ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null); // EDGE_ZERO_FILL handles edges by filling with zeros
+        // null creates a new destination image
+        return op.filter(img, null);
+    }
+
+    private Kernel createGaussianKernel(int radius){
+        int size = radius * 2 + 1;
+        float[] data = new float[size * size];
+        double sigma = radius / 3.0; // Standard deviation
+        double twoSigmaSquare = 2.0 * sigma * sigma;
+        float sum = 0;
+
+        for (int y = -radius; y <= radius; y++) {
+            for (int x = -radius; x <= radius; x++) {
+                double exponent = -(x * x + y * y) / twoSigmaSquare;
+                float weight = (float) Math.exp(exponent);
+                data[(y + radius) * size + (x + radius)] = weight;
+                sum += weight;
+            }
+        }
+
+        // Normalize the kernel
+        for (int i = 0; i < data.length; i++) {
+            data[i] /= sum;
+        }
+
+        return new Kernel(size, size, data);
     }
 
     private String getFileFormat(String contentType){

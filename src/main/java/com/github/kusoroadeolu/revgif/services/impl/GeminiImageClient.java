@@ -76,13 +76,12 @@ public class GeminiImageClient implements ImageClient {
             Generate a 2-3 word GIF search query for this image.
             
             STEP 1: If there's a person, TRY TO IDENTIFY THEM.
-            - Use Google Search if needed to identify celebrities, streamers, influencers, athletes, etc.
+            - Use Google Search if needed to identify celebrities, streamers, influencers, athletes etc.
             
             STEP 2: Identify the MOST PROMINENT visual element:
             - Is there an object they're interacting with? (phone, mic, controller, food, etc.)
             - Is a specific body part the focus? (face, hands, eyes, eyebrow)
-            - Is it just their general reaction?
-            
+                        
             Priority for visual anchor:
             1. Object being used/held → phone, mic, controller, car, food
             2. Body part in focus → face, hands, eyes, eyebrow, mouth

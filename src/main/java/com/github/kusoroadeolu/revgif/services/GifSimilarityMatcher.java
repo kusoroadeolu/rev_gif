@@ -85,7 +85,7 @@ public class GifSimilarityMatcher {
             for (HashWrapper h : hw){
                 final double hd = h.hash().normalizedHammingDistance(hash);
                 if(hd <= this.appConfigProperties.nmHammingThreshold()){
-                    similarFrames.add(this.frameMapper.toFrame(h));
+                    similarFrames.add(this.frameMapper.toFrame(h, hd));
                     this.logMapper.log(CLASS_NAME, "Found similar gif. Hamming dist: %s".formatted(hd));
                     this.logMapper.log(CLASS_NAME, "Current list size: %s".formatted(gifs.size()));
                     hasAdded = true;

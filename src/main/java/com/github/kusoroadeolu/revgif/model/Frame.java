@@ -15,5 +15,6 @@ public class Frame {
     private Long id;
     private long pHash;
     private int frameIdx;
+    private double nmHammingDist;
     private long gif;
 }

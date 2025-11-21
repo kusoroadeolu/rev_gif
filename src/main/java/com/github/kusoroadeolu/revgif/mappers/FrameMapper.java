@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 
 @Component
 public class FrameMapper {
-    public Set<Frame> toFrames(List<HashWrapper> hw){
+    public Set<Frame> toFrames(List<HashWrapper> hw, double nmHmDist){
         return hw.stream()
-                .map(this::toFrame)
+                .map(h -> toFrame(h, nmHmDist))
                 .collect(Collectors.toSet());
     }
 
-    public Frame toFrame(HashWrapper h){
-        return new Frame(null, h.hash().getHashValue().longValue(), h.frameWrapper().frameIdx(), 0);
+    public Frame toFrame(HashWrapper h, double nmHmDist){
+        return new Frame(null, h.hash().getHashValue().longValue(), h.frameWrapper().frameIdx(), nmHmDist ,0);
     }
 }

@@ -39,7 +39,7 @@ public class GifCommandServiceImpl implements GifCommandService {
     private final static String CLASS_NAME = GifCommandServiceImpl.class.getSimpleName();
     private final LogMapper logMapper;
     private final static String BATCH_GIF_INSERT = "INSERT INTO gifs(mime_type, description, tenor_id, tenor_url, search_query) VALUES (?,?,?,?,?) ON CONFLICT(tenor_url) DO NOTHING";
-    private final static String BATCH_FRAME_INSERT = "INSERT INTO frames(p_hash, frame_idx, gifs) VALUES (?, ?, ?)";
+    private final static String BATCH_FRAME_INSERT = "INSERT INTO frames(p_hash, frame_idx, nm_hamming_dist ,gifs) VALUES (?, ?, ?, ?)";
     private final static String SAVED_GIF_QUERY = "SELECT * from gifs WHERE id IN (:id)";
 
     /**
@@ -96,7 +96,7 @@ public class GifCommandServiceImpl implements GifCommandService {
     private List<Gif> querySavedGifs(List<Long> generatedIds){
         return this.namedParameterJdbcTemplate.query(
                 SAVED_GIF_QUERY,
-                Collections.singletonMap("id", generatedIds),
+                Collections.singletonMap(ID.val() , generatedIds),
                 (rs, _) -> {
                     return Gif.builder()
                             .id(rs.getLong(ID.val()))
@@ -142,7 +142,8 @@ public class GifCommandServiceImpl implements GifCommandService {
                 (ps, frame) -> {
                     ps.setLong(1, frame.getPHash());
                     ps.setInt(2, frame.getFrameIdx());
-                    ps.setLong(3, frame.getGif());
+                    ps.setDouble(3, frame.getNmHammingDist());
+                    ps.setLong(4, frame.getGif());
                 }
         );
     }

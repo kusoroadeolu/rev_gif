@@ -7,7 +7,7 @@ spring:
       - image/png
       - image/webp
     bit-resolution: 64
-    expected_frames: 4 # To save costs lol
+    expected_frames: 3 # To save costs lol
     nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this thru trial and error(.41 * 64, might return some false postives but lesser than this could be too strict)
 
   datasource:
@@ -48,15 +48,8 @@ api:
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
-cookie:
-  max-age: 3600
-  http-only: true
-  secure: false
-  name: SESSION-COOKIE
-  path: /
-
 sse:
-  duration: 3
+  duration: 5
 
 rate-limit:
   req-per-minute: 5
