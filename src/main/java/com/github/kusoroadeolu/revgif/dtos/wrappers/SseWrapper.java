@@ -29,7 +29,6 @@ public class SseWrapper {
 
     public synchronized void increment(){
         this.eventsReceived++;
-        log.info("Incrementing events received. Current value: {}", this.eventsReceived);
     }
 
     public synchronized void cleanupIfNeeded(){
@@ -42,14 +41,7 @@ public class SseWrapper {
 
             if(this.executorService != null){
                 this.executorService.shutdown();
-                try {
-                    boolean await = this.executorService.awaitTermination(10, TimeUnit.SECONDS);
-                    if(await)this.executorService.shutdownNow();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("An unexpected error occurred while ");
-                }
-
+                this.executorService.close();
             }
 
             this.state = State.COMPLETED;
