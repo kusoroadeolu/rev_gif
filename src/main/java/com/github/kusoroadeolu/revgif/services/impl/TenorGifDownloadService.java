@@ -7,6 +7,7 @@ import com.github.kusoroadeolu.revgif.dtos.gif.BatchNormalizedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.DownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.NormalizedGif;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
+import com.github.kusoroadeolu.revgif.services.GifDownloadService;
 import com.github.kusoroadeolu.revgif.services.GifSimilarityMatcher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,13 +25,13 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class GifDownloadServiceImpl implements com.github.kusoroadeolu.revgif.services.GifDownloadService {
+public class TenorGifDownloadService implements GifDownloadService {
 
     private final WebClient urlDownloadWebClient;
     private final LogMapper logMapper;
     private final GifSimilarityMatcher gifSimilarityMatcher;
     private final ApplicationEventPublisher eventPublisher;
-    private final static String CLASS_NAME = GifDownloadServiceImpl.class.getSimpleName();
+    private final static String CLASS_NAME = TenorGifDownloadService.class.getSimpleName();
 
     @EventListener
     @Override
@@ -44,8 +45,8 @@ public class GifDownloadServiceImpl implements com.github.kusoroadeolu.revgif.se
                                 .retrieve()
                                 .bodyToMono(byte[].class)
                                 .map(b -> new DownloadedGif(nm, b))
-                                .doOnError(e -> log.error(this.logMapper.log(CLASS_NAME, "An error occurred while trying downloading a file from url: %s".formatted(nm.url()))))
-                                .onErrorResume(e -> Mono.empty())
+                                .doOnError(e -> log.error(this.logMapper.log(CLASS_NAME, "An error occurred while trying downloading a file from url: %s".formatted(nm.url())), e))
+                                .onErrorResume(_ -> Mono.empty())
 
                 )
                 .collectList()

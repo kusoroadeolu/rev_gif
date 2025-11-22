@@ -8,23 +8,37 @@ spring:
       - image/webp
     bit-resolution: 64
     expected_frames: 3 # To save costs lol
-    nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this thru trial and error(.41 * 64, might return some false postives but lesser than this could be too strict)
+    nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this through trial and error(.35 * 64 similar bits, might return some false positives but lesser than this could be too strict)
 
   datasource:
     driver-class-name: org.postgresql.Driver
     password: password
     username: postgres
     url: jdbc:postgresql://localhost:5432/revgif
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 300_000
+      connection-timeout: 60_000
+      max-lifetime: 180_000
+
 
   data:
     jdbc:
       repositories:
         enabled: true
 
+    redis:
+      lettuce:
+        pool:
+          max-active: 4
+          min-idle: 2
+          max-idle: 4
+
+
   servlet:
     multipart:
-      max-file-size: 10MB #10MB max size
-      max-request-size: 10MB
+      max-file-size: 5MB #5MB max size
+      max-request-size: 5MB
 
 
 api:
@@ -44,7 +58,7 @@ api:
     base-url: https://tenor.googleapis.com/v2/search
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
-    limit: 15
+    limit: 20
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
@@ -60,7 +74,7 @@ web-client:
   response-timeout: 30
   read-write-timeout: 30
   tcp-timeout-millis: 20_000
-  max-bytes-read: 10_485_760 #10 mb
+  max-bytes-read: 5_242_880 #5 mb
   max-retry-attempts: 3
   backoff: 2
 

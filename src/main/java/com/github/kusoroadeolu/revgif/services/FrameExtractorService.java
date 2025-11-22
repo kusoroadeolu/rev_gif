@@ -93,7 +93,7 @@ public class FrameExtractorService {
     //Apply a slight gaussian blur to this image
     private BufferedImage applyBlur(BufferedImage img, int radius){
         Kernel kernel = createGaussianKernel(radius);
-        ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null); // EDGE_ZERO_FILL handles edges by filling with zeros
+        ConvolveOp op = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null); // handles edges by filling with zeros
         // null creates a new destination image
         return op.filter(img, null);
     }

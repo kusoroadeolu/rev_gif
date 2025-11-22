@@ -55,7 +55,7 @@ public class TenorGifClient implements GifClient {
                     return bng;
                 })
                 .doOnError(e -> log.error(this.logMapper.log(CLASS_NAME, "Tenor API call failed for query: %s".formatted(imageClientResponse.searchQuery())), e))
-                .onErrorResume(WebClientResponseException.class, e -> Mono.empty())
+                .onErrorResume(WebClientResponseException.class, _ -> Mono.empty())
                 .retryWhen(Retry.backoff(maxRetry, Duration.ofSeconds(backOff))) //TODO extract to config
                 .subscribe(this.eventPublisher::publishEvent, e -> {
                     log.error("An unexpected error occurred during tenor call", e);

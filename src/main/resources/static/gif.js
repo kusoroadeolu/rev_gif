@@ -98,13 +98,18 @@ async function startSearch(file) {
 
         // Handle sync errors (400, 500)
         if (!response.ok) {
-            const errorText = await response.text();
-            if (response.status === 400) {
-                showError('Unsupported file format. Please upload a valid GIF or image.');
-            } else if (response.status === 500) {
-                showError('Failed to read the file. Please try again.');
-            } else {
-                showError(errorText || 'Something went wrong. Please try again.');
+            try {
+                const errorData = await response.json();
+                if (response.status === 400) {
+                    showError(errorData.message || 'Unsupported file format. Please upload a valid GIF or image.');
+                } else if (response.status === 500) {
+                    showError(errorData.message || 'Failed to read the file. Please try again.');
+                } else {
+                    showError(errorData.message || 'Something went wrong. Please try again.');
+                }
+            } catch (parseError) {
+                // Fallback if response isn't JSON
+                showError('Something went wrong. Please try again.');
             }
             hideSpinner();
             uploadBtn.disabled = false;

@@ -11,4 +11,5 @@ This file includes some decisions I've made so far
 - I also realized that redis doesn't serialize sse emitters properly so my initial plan to tie the sse emitter to redis kinda failed. I still have to use a map for that,
 </br> On the other hand, I used keyspace events to tie the session to a dummy value so when the session expires I can clean up the emitter
 - I also decided to use executors to ensure async ordering for my sse emitter to prevent any weird race conditions. Since executors force async ordering(cause of its blocking queue under the hood)
-- I decided to filter out frames that aren't similar to the uploaded image/gif and only save those which are similar to prevent stuffing my db with irrelevant frames 
+- I decided to filter out frames that aren't similar to the uploaded image/gif and only save those which are similar to prevent stuffing my db with irrelevant frames
+- Added gaussian blur to help with 
