@@ -1,8 +1,8 @@
 package com.github.kusoroadeolu.revgif.services;
 
 import com.github.kusoroadeolu.revgif.configprops.AppConfigProperties;
-import com.github.kusoroadeolu.revgif.dtos.gif.BatchDownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.events.BatchGifSearchCompletedEvent;
+import com.github.kusoroadeolu.revgif.dtos.gif.BatchDownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.DownloadedGif;
 import com.github.kusoroadeolu.revgif.dtos.gif.HashedGif;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;

@@ -1,7 +1,7 @@
 package com.github.kusoroadeolu.revgif.mappers;
 
-import com.github.kusoroadeolu.revgif.dtos.events.GifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.ImageClientResponse;
+import com.github.kusoroadeolu.revgif.dtos.events.GifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.gif.*;
 import com.github.kusoroadeolu.revgif.model.Frame;
 import com.github.kusoroadeolu.revgif.model.Gif;

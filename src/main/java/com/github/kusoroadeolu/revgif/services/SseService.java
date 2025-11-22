@@ -1,7 +1,7 @@
 package com.github.kusoroadeolu.revgif.services;
 
-import com.github.kusoroadeolu.revgif.dtos.wrappers.SseWrapper;
 import com.github.kusoroadeolu.revgif.dtos.events.GifEvent;
+import com.github.kusoroadeolu.revgif.dtos.wrappers.SseWrapper;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;

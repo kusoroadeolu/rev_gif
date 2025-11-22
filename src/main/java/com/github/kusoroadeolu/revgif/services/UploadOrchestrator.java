@@ -1,12 +1,12 @@
 package com.github.kusoroadeolu.revgif.services;
 
-import com.github.kusoroadeolu.revgif.dtos.events.BatchGifSearchCompletedEvent;
 import com.github.kusoroadeolu.revgif.dtos.ImageClientResponse;
+import com.github.kusoroadeolu.revgif.dtos.events.BatchGifSearchCompletedEvent;
+import com.github.kusoroadeolu.revgif.dtos.events.EventErrorType;
 import com.github.kusoroadeolu.revgif.dtos.events.GifSearchErrorEvent;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FileWrapper;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.FrameWrapper;
 import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
-import com.github.kusoroadeolu.revgif.dtos.events.EventErrorType;
 import com.github.kusoroadeolu.revgif.exceptions.ImageClientException;
 import com.google.genai.errors.ApiException;
 import com.google.genai.errors.GenAiIOException;

@@ -4,8 +4,6 @@ import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.NullMarked;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -20,7 +18,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 
-import static com.github.kusoroadeolu.revgif.config.RedisConfig.*;
+import static com.github.kusoroadeolu.revgif.config.RedisConfig.MyKeyspaceConfig;
 
 @Slf4j
 @Configuration

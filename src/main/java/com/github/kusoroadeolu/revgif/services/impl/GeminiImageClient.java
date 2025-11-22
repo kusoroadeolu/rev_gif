@@ -6,8 +6,6 @@ import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 import com.github.kusoroadeolu.revgif.exceptions.ImageClientException;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.services.ImageClient;
-import com.google.genai.Client;
-import com.google.genai.errors.GenAiIOException;
 import com.google.genai.types.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

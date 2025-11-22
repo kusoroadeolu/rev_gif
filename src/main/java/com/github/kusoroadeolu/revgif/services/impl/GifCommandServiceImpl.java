@@ -1,6 +1,5 @@
 package com.github.kusoroadeolu.revgif.services.impl;
 
-import com.github.kusoroadeolu.revgif.enums.GifEntityFields;
 import com.github.kusoroadeolu.revgif.exceptions.GifPersistenceException;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.model.Frame;
@@ -22,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
