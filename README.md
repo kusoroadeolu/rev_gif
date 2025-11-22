@@ -1,5 +1,5 @@
-# RevGif - Reverse GIF Search Pipleine
-RevGif is e mini image search pipeline for GIFs using perceptual hashing and AI. Upload an image or GIF, and RevGif finds visually similar GIFs from Tenor in real-time.
+# RevGif - Reverse GIF Search Pipeline
+RevGif is a mini image search pipeline for GIFs using perceptual hashing and AI. Upload an image or GIF, and RevGif finds visually similar GIFs from Tenor in real-time.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -187,7 +187,7 @@ CREATE INDEX idx_p_hashes ON frames(p_hash);
 CREATE INDEX idx_gifs ON frames(gifs);
 ```
 
-The hash comparison uses PostgreSQL's bitwise XOR and bit counting:
+The hash comparison uses PostgresSQL's bitwise XOR and BIT_COUNT:
 ```sql
 SELECT g.tenor_url, g.description, g.mime_type
 FROM frames f
@@ -266,7 +266,7 @@ This query XORs the stored hash with the uploaded hash, counts the differing bit
 ### Backend
 - **Spring Boot 4.0.0RC2**: Main framework
 - **Spring WebFlux**: Reactive HTTP client for Tenor API calls
-- **PostgreSQL**: Primary database with bitwise operations support
+- **PostgresSQL**: Primary database with bitwise operations support
 - **Redis**: Session management and rate limiting
 - **Apache Tika**: File type detection
 - **JImageHash**: Perceptual hashing library
@@ -286,7 +286,7 @@ This query XORs the stored hash with the uploaded hash, counts the differing bit
 
 ### Prerequisites
 - Java 25
-- PostgreSQL 16+
+- PostgresSQL 16+
 - Redis 6+
 - Google Gemini API key
 - Tenor API key
