@@ -13,6 +13,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -28,8 +29,8 @@ public class GifQueryServiceImpl implements GifQueryService {
     public BatchGifSearchCompletedEvent findGifsFromDb(@NonNull HashWrapper hashWrapper, String session){
         final Hash hash = hashWrapper.hash();
         final long hashVal = hash.getHashValue().longValue();
-        final Set<GifSearchCompletedEvent> res = this.frameRepository.compareByHash(hashVal,
-                this.appConfigProperties.nmHammingThreshold());
+        final double threshold =  this.appConfigProperties.nmHammingThreshold();
+        final List<GifSearchCompletedEvent> res = this.frameRepository.compareByHash(hashVal, threshold);
         final BatchGifSearchCompletedEvent bg = new BatchGifSearchCompletedEvent(res, session);
 
         if(!res.isEmpty()){

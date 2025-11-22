@@ -21,7 +21,7 @@ public class ValidatorService {
 
 
     public FileWrapper validateFile(byte[] b){
-
+        var allowedFormats = this.configProperties.allowedFileFormats();
         if(b.length < 1){
             throw new UnsupportedFileFormatException("File cannot be empty");
         }
@@ -37,10 +37,10 @@ public class ValidatorService {
 
         log.info(this.logMapper.log(CLASS_NAME, "File content type: %s".formatted(mimeType)));
 
-        if (mimeType == null || !this.configProperties.allowedFileFormats().contains(mimeType)) {
+        if (mimeType == null || !allowedFormats.contains(mimeType)) {
             throw new UnsupportedFileFormatException(
                     "Invalid file format. Detected: %s, Allowed: %s"
-                            .formatted(mimeType, configProperties.allowedFileFormats())
+                            .formatted(mimeType, allowedFormats)
             );        }
 
         return new FileWrapper(b, mimeType);

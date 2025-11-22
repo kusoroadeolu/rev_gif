@@ -7,6 +7,7 @@ import com.github.kusoroadeolu.revgif.exceptions.ImageClientException;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.services.ImageClient;
 import com.google.genai.Client;
+import com.google.genai.errors.GenAiIOException;
 import com.google.genai.types.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class GeminiImageClient implements ImageClient {
 
-    private final Client geminiClient;
+    private final GeminiModelsProvider modelsProvider;
     private final GeminiConfigProperties geminiConfigProperties;
     private final LogMapper logMapper;
     private final static String CLASS_NAME = GeminiImageClient.class.getSimpleName();
@@ -42,21 +43,21 @@ public class GeminiImageClient implements ImageClient {
             final Tool googleSearchTool = Tool.builder()
                     .googleSearch(GoogleSearch.builder().build())
                     .build();
-
             final Content content = Content.fromParts(textPart, imgPart);
-            final GenerateContentResponse description = this.geminiClient.models.generateContent(
+            final GenerateContentResponse description = this.modelsProvider.models().generateContent(
                         this.geminiConfigProperties.model(),
                         content,
                         GenerateContentConfig.builder().tools(googleSearchTool).build()
             );
+            String query = description.text();
 
-            if(description.text() == null || description.text().isEmpty()){
+            if(query == null || query.isEmpty()){
                 log.error(this.logMapper.log(CLASS_NAME, "Received null or empty response from gemini. Retrying..."));
                 throw new ImageClientException();
             }
 
-            log.info(this.logMapper.log(CLASS_NAME, "Result: %s".formatted(description.text())));
-            return new ImageClientResponse(description.text(), wrapper.frameWrapper().format(), wrapper.frameWrapper().frameIdx(), wrapper.hash());
+            log.info(this.logMapper.log(CLASS_NAME, "Result: %s".formatted(query)));
+            return new ImageClientResponse(query, wrapper.frameWrapper().format(), wrapper.frameWrapper().frameIdx(), wrapper.hash());
         }catch (IOException e) {
             log.error(this.logMapper.log(CLASS_NAME, "An image read ex occurred."), e);
             throw new ImageClientException(e);

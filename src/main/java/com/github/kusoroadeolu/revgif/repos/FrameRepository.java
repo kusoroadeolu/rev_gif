@@ -5,6 +5,8 @@ import com.github.kusoroadeolu.revgif.dtos.events.GifSearchCompletedEvent;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 public interface FrameRepository extends ListCrudRepository<Frame, Integer> {
@@ -16,5 +18,5 @@ public interface FrameRepository extends ListCrudRepository<Frame, Integer> {
             ORDER BY BIT_COUNT((f.p_hash # :userFrameHash)::BIT(64)) / 64.0
             LIMIT 10;
             """)
-    public Set<GifSearchCompletedEvent> compareByHash(long userFrameHash, double threshold);
+    public List<GifSearchCompletedEvent> compareByHash(long userFrameHash, double threshold);
 }

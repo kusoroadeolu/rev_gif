@@ -96,7 +96,7 @@ public class GifCommandServiceImpl implements GifCommandService {
     private List<Gif> querySavedGifs(List<Long> generatedIds){
         return this.namedParameterJdbcTemplate.query(
                 SAVED_GIF_QUERY,
-                Collections.singletonMap(ID.val() , generatedIds),
+                Map.of(ID.val() , generatedIds),
                 (rs, _) -> {
                     return Gif.builder()
                             .id(rs.getLong(ID.val()))

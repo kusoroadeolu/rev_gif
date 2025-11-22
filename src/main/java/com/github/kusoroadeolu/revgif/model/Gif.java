@@ -23,10 +23,4 @@ public class Gif {
     private String description, tenorId, tenorUrl, searchQuery;
     private Set<Frame> frames;
 
-
-    public Gif update(Set<Frame> frames) {
-        this.frames = frames;
-        this.updatedAt = LocalDateTime.now();
-        return this;
-    }
 }

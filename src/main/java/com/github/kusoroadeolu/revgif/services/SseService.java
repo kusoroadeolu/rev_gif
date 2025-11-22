@@ -2,6 +2,7 @@ package com.github.kusoroadeolu.revgif.services;
 
 import com.github.kusoroadeolu.revgif.dtos.wrappers.SseWrapper;
 import com.github.kusoroadeolu.revgif.dtos.events.GifEvent;
+import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -25,6 +27,8 @@ public class SseService {
 
     private final Map<String, SseWrapper> sseWrappers;
     private final RedisTemplate<String, Session> sseTemplate;
+    private final LogMapper logMapper;
+    private static final String CLASS_NAME = SseService.class.getSimpleName();
 
     @Value("${sse.duration}")
     private int sseDuration;
@@ -48,60 +52,52 @@ public class SseService {
 
     @EventListener
     public void listenForSseExpiry(RedisKeyExpiredEvent<Session> expiredEvent){
-        log.info("Redis event triggered");
+        log.info(this.logMapper.log(CLASS_NAME, "Redis event triggered"));
         final byte[] eventId = expiredEvent.getId();
         final String session = new String(eventId, StandardCharsets.UTF_8);
 
         if(session.isEmpty()){
-            log.info("Empty session found");
+            log.info(this.logMapper.log(CLASS_NAME,  "Empty session found"));
            return;
         }
 
         final SseWrapper wrapper = this.sseWrappers.get(session);
         if(wrapper != null && !wrapper.isCompleted()){
-            this.cleanup(session);
+            wrapper.cleanup();
         }
+
         this.sseWrappers.remove(session);
-        log.info("Successfully cleaned up emitter. Session: {}", session);
+        log.info(this.logMapper.log(CLASS_NAME, "Successfully cleaned up emitter. Session: %s".formatted(session)));
     }
 
     public void emit(String session, GifEvent event){
-        final SseWrapper sseWrapper = this.getWrapper(session);
+        final SseWrapper sseWrapper = this.sseWrappers.get(session);
+        if (sseWrapper == null) return;
+
         final SseEmitter emitter = sseWrapper.sseEmitter();
-        sseWrapper.executorService().execute(() -> {
-            try{
-                log.info("Streaming event to client");
-                emitter.send(event);
-                sseWrapper.increment();
-                sseWrapper.cleanupIfNeeded();
-            }catch (IOException ex){
-                emitter.completeWithError(ex);
-                log.error("An IO ex occurred while streaming...", ex);
-                this.cleanup(session);
-            }catch (Exception ex){
-                emitter.completeWithError(ex);
-                log.error("An unexpected ex occurred while streaming...", ex);
-                this.cleanup(session);
-            }
-        });
-
-    }
-
-
-    public SseWrapper getWrapper(String session){
-        SseWrapper wrapper = this.sseWrappers.get(session);
-        log.info("Sse wrapper: {}", wrapper);
-
-        if(wrapper == null){
-            throw new RuntimeException("Sse wrapper cannot be null");
+        final ExecutorService executor = sseWrapper.executorService();
+        if(emitter != null && executor != null){
+            executor.execute(() -> {
+                try{
+                    log.info("Streaming event to client");
+                    emitter.send(event);
+                    sseWrapper.increment();
+                    sseWrapper.cleanupIfNeeded();
+                }catch (IOException ex){
+                    emitter.completeWithError(ex);
+                    log.error("An IO ex occurred while streaming...", ex);
+                    sseWrapper.cleanup();
+                }catch (Exception ex){
+                    emitter.completeWithError(ex);
+                    log.error("An unexpected ex occurred while streaming...", ex);
+                    sseWrapper.cleanup();
+                }
+            });
         }
 
-        return wrapper;
     }
 
-    private void cleanup(String session){
-        final SseWrapper wrapper = this.sseWrappers.get(session);
-        wrapper.cleanup();
-    }
+
+
 
 }
