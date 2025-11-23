@@ -66,8 +66,8 @@ api:
     base-url: https://tenor.googleapis.com/v2/search
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
-    limit: 20
-    limit-for-many: 8 #limit when processing multiple frames uploaded by the user
+    limit: 15
+    limit-for-many: 8  #limit when processing multiple frames uploaded by the user
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
@@ -80,10 +80,10 @@ rate-limit:
 
 web-client:
   ssl-handshake-timeout: 20
-  response-timeout: 30
-  read-write-timeout: 30
+  response-timeout: 60
+  read-write-timeout: 60
   tcp-timeout-millis: 20_000
-  max-bytes-read: 10_485_760 #10 mb
+  max-bytes-read: 15_728_640 #15 mb
   max-retry-attempts: 3
   backoff: 2
 

@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericExceptions(Exception e){
-        final ApiError err = new ApiError(500, e.getMessage(), LocalDateTime.now());
+        final ApiError err = new ApiError(500, "An unexpected error occurred.", LocalDateTime.now());
         return new ResponseEntity<>(err, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

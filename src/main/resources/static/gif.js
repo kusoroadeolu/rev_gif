@@ -79,6 +79,7 @@ function addGifCard(tenorUrl, description) {
 }
 
 async function startSearch(file) {
+    fileInput.value = '';
     // Reset state - clear everything first
     clearResults();
     hideSpinner();
@@ -108,7 +109,6 @@ async function startSearch(file) {
                     showError(errorData.message || 'Something went wrong. Please try again.');
                 }
             } catch (parseError) {
-                // Fallback if response isn't JSON
                 showError('Something went wrong. Please try again.');
             }
             hideSpinner();
@@ -125,6 +125,10 @@ async function startSearch(file) {
             const { done, value } = await reader.read();
 
             if (done) {
+                // Check if no cards were added
+                if (gridContainer.children.length === 0) {
+                    showError('No similar GIFs found. Try a different image.');
+                }
                 hideSpinner();
                 uploadBtn.disabled = false;
                 break;
@@ -132,7 +136,7 @@ async function startSearch(file) {
 
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split('\n');
-            buffer = lines.pop(); // Keep incomplete line in buffer
+            buffer = lines.pop();
 
             for (const line of lines) {
                 if (line.startsWith('data:')) {

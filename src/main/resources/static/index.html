@@ -38,16 +38,23 @@
         }
 
         body {
-            max-width: 1920px;
-            margin: 0 auto;
+            width: 100%;
+            margin: 0;
+
             background-color: var(--bg-color);
             font-family: 'MiSans', sans-serif;
             color: var(--text-main);
             overflow-x: hidden;
             min-height: 100vh;
+
+
             background-image:
                     radial-gradient(circle at 10% 20%, rgba(255, 60, 172, 0.08) 0%, transparent 40%),
                     radial-gradient(circle at 90% 80%, rgba(43, 134, 197, 0.1) 0%, transparent 40%);
+
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-size: cover;
         }
 
         /* Loading Spinner - Top Left */
@@ -371,10 +378,14 @@
 
         /* Decorative Elements */
         .bg-shape {
-            position: absolute;
+            /* Change absolute to fixed */
+            position: fixed;
             border-radius: 50%;
             filter: blur(80px);
+            /* Ensure they stay behind everything else */
             z-index: -1;
+            /* specific to fix interaction issues */
+            pointer-events: none;
         }
 
         .shape-1 {
@@ -422,8 +433,40 @@
             margin-bottom: 20px;
             opacity: 0.5;
         }
+
+        /* Powered By Floating Label */
+        .powered-by {
+            position: fixed;
+            bottom: 20px;
+            right: 30px;
+            font-family: 'MiSans', sans-serif;
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-decoration: none;
+
+            /* distinct styling */
+            background: rgba(30, 30, 30, 0.6); /* Semi-transparent dark */
+            backdrop-filter: blur(5px);         /* Glass effect */
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+
+            z-index: 90; /* High enough to sit over bg, lower than spinner/toast */
+            transition: all 0.3s ease;
+        }
+
+        .powered-by:hover {
+            color: #fff;
+            border-color: var(--accent-blue); /* Uses your blue accent on hover */
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
     </style>
+
 </head>
+<a href="https://tenor.com" target="_blank" class="powered-by">
+    Powered by Tenor
+</a>
 <body>
 
 <div class="bg-shape shape-1"></div>
@@ -471,7 +514,6 @@
         <div class="grid-container" id="gridContainer"></div>
     </div>
 </div>
-
 <script src="gif.js"></script>
 </body>
 </html>
