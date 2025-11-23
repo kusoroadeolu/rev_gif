@@ -61,7 +61,7 @@ public class FrameExtractorService {
                 };
             }
 
-            final BufferedImage image = this.applyBlur(reader.read(IMAGE_START_IDX), 3);
+            final BufferedImage image = this.applyBlur(reader.read(IMAGE_START_IDX), this.configProperties.gaussianBlur());
             return List.of(new FrameWrapper(IMAGE_START_IDX, image, format));
         }catch (IOException e){
             log.info(this.logMapper.log(CLASS_NAME, "An IO ex occurred while trying to extract frames from file. Content type: %s".formatted(format)));

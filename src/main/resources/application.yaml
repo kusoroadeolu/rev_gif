@@ -9,6 +9,7 @@ spring:
     bit-resolution: 64
     expected_frames: 3 # To save costs lol
     nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this through trial and error(.35 * 64 similar bits, might return some false positives but lesser than this could be too strict)
+    gaussian-blur: 3
 
   datasource:
     driver-class-name: org.postgresql.Driver

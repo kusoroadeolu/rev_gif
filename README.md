@@ -227,27 +227,19 @@ This query XORs the stored hash with the uploaded hash, counts the differing bit
 **Why this matters**: Scheduled jobs were wasteful since they just poll constantly. Redis keyspace events are event-driven which is way cleaner. The manual tracking is key though - it lets the frontend know definitively when all results have arrived instead of just waiting and hoping. The executor's blocking queue guarantees FIFO ordering so events don't arrive out of sequence.
 
 ### 4. Database-First Approach
-
 **What I did**: Check the database before calling external APIs, and only save frames that actually match.
-
 **Why**: This cuts down API calls massively for repeated queries. If someone uploads a popular meme, chances are it's already in the database. Response time for cached queries drops to under 500ms. Plus, filtering out non-matching frames before saving keeps the database lean.
 
 ### 5. Event-Driven Architecture
-
 **What I did**: Use Spring's event publishing for results instead of calling SSE directly.
-
 **Why**: This decouples everything. Multiple components can publish events without knowing how SSE works. Makes error handling cleaner and the whole system more testable. The frontend gets batched events which makes loading states way easier to handle and allows for better UX
 
 ### 6. Virtual Threads
-
 **What I did**: Used Spring's virtual thread task executor for async work.
-
 **Why**: Virtual threads are perfect for I/O-bound stuff like API calls and database queries. Way lighter than traditional thread pools, and the code stays simple compared to reactive approaches. You get high concurrency without the complexity.
 
-### 7. The 0.35 Threshold
-
-**What I did**: Set normalized Hamming distance threshold to 0.35. T
-
+### 7. The Normalized Similarity Threshold
+**What I did**: Set normalized Hamming distance threshold to 0.35.
 **Why**: This means about 22-23 bits can differ out of 64 (roughly 35% dissimilarity). I tested this with a bunch of different images and 0.35 hits the right balance - finds similar GIFs without too many false positives. Combined with the Gaussian blur, it produces reliable results.
 
 ### 8. Gemini Prompt Engineering
@@ -280,7 +272,7 @@ This query XORs the stored hash with the uploaded hash, counts the differing bit
 
 ### Infrastructure
 - **Docker**: Containerization (Redis)
-- **Redis**: Rate limiting
+- **Redis**: Rate limiting and sse request management
 
 ## Setup
 
@@ -427,9 +419,9 @@ Upload an image or GIF to find similar content.
 ### Caching Strategy
 - Database-first approach reduces redundant API calls
 - Average response time for cached queries: <500ms
-- Cold queries (new uploads): 3-10 seconds depending on Tenor results
+- Cold queries (new uploads): 30-40 seconds(depends on internet download speed as well) depending on Tenor results
 
-### Scalability
+### Scalability(Cuz why not)
 - Virtual threads enable high concurrency without thread pool exhaustion
 - Stateless design allows horizontal scaling
 - Redis session management supports load balancing
@@ -445,15 +437,12 @@ Upload an image or GIF to find similar content.
 
 - Add support for video uploads
 - Implement user accounts and search history
-- Add support for custom similarity thresholds
-- Batch processing for multiple uploads
 - WebSocket alternative to SSE for bidirectional communication
-- CDN integration for faster GIF delivery
-- Machine learning model for better similarity scoring
+
 
 ## Acknowledgments
-
 Inspired by [TinEye](https://tineye.com/), this project demonstrates practical applications of perceptual hashing and AI-powered image analysis.
+Tenor for their GIF Search API
 
 ## License
 MIT License - feel free to use this project for learning or commercial purposes.
