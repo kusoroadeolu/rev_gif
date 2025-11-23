@@ -7,9 +7,10 @@ spring:
       - image/png
       - image/webp
     bit-resolution: 64
-    expected_frames: 3 # To save costs lol
+    expected_frames: 2 # To save costs lol and prevent out of memory errors in render
     nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this through trial and error(.35 * 64 similar bits, might return some false positives but lesser than this could be too strict)
     gaussian-blur: 3
+    next-frame: 2 # to prevent out of memory errors
 
   datasource:
     hikari:
@@ -67,7 +68,7 @@ api:
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
     limit: 15
-    limit-for-many: 8  #limit when processing multiple frames uploaded by the user
+    limit-for-many: 4  #limit when processing multiple frames uploaded by the user
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
@@ -83,7 +84,7 @@ web-client:
   response-timeout: 60
   read-write-timeout: 60
   tcp-timeout-millis: 20_000
-  max-bytes-read: 15_728_640 #15 mb
+  max-bytes-read: 10_485_760 #15 mb
   max-retry-attempts: 3
   backoff: 2
 

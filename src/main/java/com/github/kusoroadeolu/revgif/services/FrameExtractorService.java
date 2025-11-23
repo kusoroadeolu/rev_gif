@@ -75,7 +75,7 @@ public class FrameExtractorService {
     }
 
     private List<FrameWrapper> getAllFrames(ImageReader imageReader, int frameNums, String format) throws IOException {
-        return this.loopThroughImage(imageReader, format, 1, frameNums);
+        return this.loopThroughImage(imageReader, format, this.configProperties.framesSkip(), frameNums);
     }
 
     private List<FrameWrapper> loopThroughImage(ImageReader imageReader, String format, int nextFrame, int frameNums) throws IOException{

@@ -11,7 +11,8 @@ public record AppConfigProperties(
         int bitResolution,
         int expectedFrames,
         double nmHammingThreshold,
-        int gaussianBlur
+        int gaussianBlur,
+        int nextFrame
 ) {
 
 }
