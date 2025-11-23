@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: RevGif
+    allowed-file-formats:
+      - image/gif
+      - image/jpeg
+      - image/png
+      - image/webp
+    bit-resolution: 64
+    expected_frames: 3 # To save costs lol
+    nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this through trial and error(.35 * 64 similar bits, might return some false positives but lesser than this could be too strict)
+    gaussian-blur: 3
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    password: password
+    username: postgres
+    url: jdbc:postgresql://localhost:5432/revgif
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 300_000
+      connection-timeout: 60_000
+      max-lifetime: 180_000
+
+
+  data:
+    jdbc:
+      repositories:
+        enabled: true
+
+    redis:
+      lettuce:
+        pool:
+          max-active: 4
+          min-idle: 2
+          max-idle: 4
+
+
+  servlet:
+    multipart:
+      max-file-size: 5MB #5MB max size
+      max-request-size: 5MB
+
+
+api:
+  gemini:
+    api-key: ${GEMINI_API_KEY}
+    model: gemini-2.5-flash
+    retry-attempts: 3
+    status-codes:    #status codes to retry for
+      - 503
+    initial-delay: 1000.0
+    max-delay: 3000.0
+    max-conns: 32
+    max-conns-per-host: 8
+
+  tenor:
+    api-key: ${TENOR_API_KEY}
+    base-url: https://tenor.googleapis.com/v2/search
+    content-filter: low
+    media-filter: gif, mp4 #Only gifs are needed
+    limit: 15
+
+date-time-pattern: yyyy-MM-dd HH:mm:ss
+
+sse:
+  duration: 5
+
+rate-limit:
+  req-per-minute: 5
+  key-ttl: 3
+
+web-client:
+  ssl-handshake-timeout: 20
+  response-timeout: 30
+  read-write-timeout: 30
+  tcp-timeout-millis: 20_000
+  max-bytes-read: 10_485_760 #5 mb
+  max-retry-attempts: 3
+  backoff: 2
+
+
+
+

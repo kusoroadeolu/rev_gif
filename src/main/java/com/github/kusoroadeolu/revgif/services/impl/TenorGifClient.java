@@ -10,6 +10,7 @@ import com.github.kusoroadeolu.revgif.dtos.gif.BatchTenorGif;
 import com.github.kusoroadeolu.revgif.mappers.GifMapper;
 import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.services.GifClient;
+import com.github.kusoroadeolu.revgif.services.SseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -36,14 +37,21 @@ public class TenorGifClient implements GifClient {
     private final ApplicationEventPublisher eventPublisher;
     private final LogMapper logMapper;
     private final GifMapper gifMapper;
+    private final SseService sseService;
     private final WebClientConfigProperties webClientConfigProperties;
     private final static String CLASS_NAME = TenorGifClient.class.getSimpleName();
 
     @Override
     public void getGifs(ImageClientResponse imageClientResponse, String session){
-        final var queryParams = buildQueryParams(imageClientResponse);
         final int maxRetry = this.webClientConfigProperties.maxRetryAttempts();
         final int backOff = this.webClientConfigProperties.backoff();
+        final int numOfEvents = this.sseService.getExpectedEvents(session);
+        String limit = this.tenorConfigProperties.limit();
+        if(numOfEvents > 2){
+            limit = this.tenorConfigProperties.limitForMany();
+        }
+        final var queryParams = buildQueryParams(imageClientResponse, limit);
+
         this.tenorWebClient.get()
                 .uri(uriBuilder -> uriBuilder.queryParams(queryParams).build())
                 .accept(MediaType.APPLICATION_JSON)
@@ -64,13 +72,13 @@ public class TenorGifClient implements GifClient {
     }
 
     @NotNull
-    private MultiValueMap<String, String> buildQueryParams(ImageClientResponse imageClientResponse) {
+    private MultiValueMap<String, String> buildQueryParams(ImageClientResponse imageClientResponse, String limit) {
         final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
         queryParams.add("q", imageClientResponse.searchQuery());
         queryParams.add("key", this.tenorConfigProperties.apiKey());
         queryParams.add("contentfilter", this.tenorConfigProperties.contentFilter());
         queryParams.add("mediafilter", this.tenorConfigProperties.mediaFilter());
-        queryParams.add("limit", this.tenorConfigProperties.limit());
+        queryParams.add("limit", limit);
         return queryParams;
     }
 

@@ -5,4 +5,5 @@ import com.github.kusoroadeolu.revgif.dtos.wrappers.HashWrapper;
 
 public interface ImageClient {
     ImageClientResponse getFrameDescription(HashWrapper wrapper);
+
 }

@@ -36,7 +36,6 @@ public class TenorGifDownloadService implements GifDownloadService {
     @EventListener
     @Override
     public void downloadGifsFromUrl(@NonNull BatchNormalizedGif result){
-        log.info("Event Listener triggered");
         final List<NormalizedGif> results = result.results();
         Flux.fromIterable(results)
                 .flatMap(nm ->
@@ -60,5 +59,6 @@ public class TenorGifDownloadService implements GifDownloadService {
                     this.eventPublisher.publishEvent(new GifSearchErrorEvent("Failed to download gifs from tenor", EventErrorType.TENOR_API_FAIL, result.session() ,LocalDateTime.now()));
                 });
     }
+
 
 }

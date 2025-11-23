@@ -6,6 +6,7 @@ import com.github.kusoroadeolu.revgif.mappers.LogMapper;
 import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.RedisKeyExpiredEvent;
@@ -34,8 +35,8 @@ public class SseService {
     private int sseDuration;
 
 
-    public SseEmitter createEmitter(String session){
-        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+    public SseEmitter createEmitter(@NonNull String session){
+        final SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
         emitter.onError(e -> this.sseWrappers.remove(session));
         emitter.onCompletion(() -> this.sseWrappers.remove(session));
         emitter.onTimeout(() -> this.sseWrappers.remove(session));
@@ -45,9 +46,13 @@ public class SseService {
     }
 
 
-    public void updateExpectedEvents(String session, int expected){
+    public void updateExpectedEvents(@NonNull String session, int expected){
        final SseWrapper wrapper = this.sseWrappers.get(session);
        wrapper.setExpectedEvents(expected);
+    }
+
+    public int getExpectedEvents(@NonNull String session){
+        return this.sseWrappers.get(session).expectedEvents();
     }
 
     @EventListener
@@ -70,7 +75,7 @@ public class SseService {
         log.info(this.logMapper.log(CLASS_NAME, "Successfully cleaned up emitter. Session: %s".formatted(session)));
     }
 
-    public void emit(String session, GifEvent event){
+    public void emit(@NonNull String session, GifEvent event){
         final SseWrapper sseWrapper = this.sseWrappers.get(session);
         if (sseWrapper == null) return;
 

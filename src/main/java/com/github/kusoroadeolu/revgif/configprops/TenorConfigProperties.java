@@ -7,7 +7,8 @@ public record TenorConfigProperties(String apiKey,
                                     String baseUrl,
                                     String contentFilter,
                                     String mediaFilter,
-                                    String limit
+                                    String limit,
+                                    String limitForMany
                                     )
 {
 }

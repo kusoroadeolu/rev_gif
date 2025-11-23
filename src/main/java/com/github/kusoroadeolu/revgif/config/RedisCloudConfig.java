@@ -1,5 +1,6 @@
 package com.github.kusoroadeolu.revgif.config;
 
+import com.github.kusoroadeolu.revgif.configprops.RedisCloudConfigProperties;
 import com.github.kusoroadeolu.revgif.model.Session;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisKeyValueAdapter;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,12 +27,20 @@ import static com.github.kusoroadeolu.revgif.config.RedisConfig.MyKeyspaceConfig
 @Configuration
 @EnableRedisRepositories(keyspaceConfiguration = MyKeyspaceConfig.class, enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 @RequiredArgsConstructor
-@Profile("dev")
-public class RedisConfig {
+@Profile("prod")
+public class RedisCloudConfig {
+
+    private final RedisCloudConfigProperties configProperties;
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory(){
-        return new LettuceConnectionFactory();
+        final RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration();
+        redisStandaloneConfiguration.setPassword(this.configProperties.password());
+        redisStandaloneConfiguration.setPort(this.configProperties.port());
+        redisStandaloneConfiguration.setHostName(this.configProperties.host());
+        redisStandaloneConfiguration.setUsername(this.configProperties.username());
+
+        return new LettuceConnectionFactory(redisStandaloneConfiguration);
     }
 
     @Bean

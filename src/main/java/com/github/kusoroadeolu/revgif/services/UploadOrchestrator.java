@@ -36,6 +36,7 @@ public class UploadOrchestrator {
     private final TaskExecutor taskExecutor;  //Virtual thread task exec
 
     public void orchestrate(byte[] b, String session){
+
          final FileWrapper fileWrapper = this.validatorService.validateFile(b);
          final List<FrameWrapper> frameWrappers = this.frameExtractor.extractFrames(fileWrapper);
          final List<HashWrapper> hashWrappers = this.hashingService.hashFrames(frameWrappers);

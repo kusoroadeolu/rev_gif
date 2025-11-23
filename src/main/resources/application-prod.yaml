@@ -12,15 +12,17 @@ spring:
     gaussian-blur: 3
 
   datasource:
-    driver-class-name: org.postgresql.Driver
-    password: password
-    username: postgres
-    url: jdbc:postgresql://localhost:5432/revgif
     hikari:
       maximum-pool-size: 10
       idle-timeout: 300_000
       connection-timeout: 60_000
       max-lifetime: 180_000
+
+    driver-class-name: org.postgresql.Driver
+    password: ${DB_PASSWORD}
+    username: avnadmin
+    url: jdbc:postgresql://pg-140b5290-moly2462-ee9e.e.aivencloud.com:17722/defaultdb?sslmode=require
+
 
 
   data:
@@ -34,6 +36,11 @@ spring:
           max-active: 4
           min-idle: 2
           max-idle: 4
+      cloud:
+        host: redis-18264.c285.us-west-2-2.ec2.cloud.redislabs.com
+        port: 18264
+        username: default
+        password: ${REDIS_PASSWORD}
 
 
   servlet:
@@ -60,6 +67,7 @@ api:
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
     limit: 20
+    limit-for-many: 8 #limit when processing multiple frames uploaded by the user
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
@@ -75,7 +83,7 @@ web-client:
   response-timeout: 30
   read-write-timeout: 30
   tcp-timeout-millis: 20_000
-  max-bytes-read: 5_242_880 #5 mb
+  max-bytes-read: 10_485_760 #10 mb
   max-retry-attempts: 3
   backoff: 2
 

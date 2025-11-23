@@ -62,6 +62,8 @@ public class GeminiImageClient implements ImageClient {
         }
     }
 
+
+
     //Helper method to convert a buf image to bytes
     private byte[] toBytes(BufferedImage image) throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -84,7 +86,7 @@ public class GeminiImageClient implements ImageClient {
             Priority for visual anchor:
             1. Object being used/held → phone, mic, controller, car, food
             2. Body part in focus → face, hands, eyes, eyebrow, mouth
-            3. Only identify the action being performed if and only if you can't identify the first two visual anchors → run, dance, scream, stare
+            3. Only identify the action being performed → (run, dance, scream, stare) IF AND ONLY IF you can't identify the first two visual anchors.
             
             STEP 3: Build the query:
             
