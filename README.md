@@ -1,5 +1,6 @@
 # RevGif - Reverse GIF Search Pipeline
 RevGif is a mini image search pipeline for GIFs using perceptual hashing and AI. Upload an image or GIF, and RevGif finds visually similar GIFs from Tenor in real-time.
+</br> **NOTE:** This project is deployed at [https://revgif.onrender.com](https://revgif.onrender.com) , but I suggest you run it locally for the best results due to the CPU and memory limitation of Render's free tier
 
 ## Table of Contents
 - [Overview](#overview)
@@ -428,13 +429,13 @@ Upload an image or GIF to find similar content.
 - Database indexes optimize hash comparison queries
 
 ### API Cost Management
-- 4 frames(could be less depending on the num of frames in the image) extracted per file upload Gemini API calls
+- 3 frames(could be less depending on the num of frames in the image) extracted per file upload Gemini API calls
 - Database caching prevents repeated analysis
-- Tenor limit of 15 results balances quality and processing time
+- Tenor limit of 15 results for single frame uploads and 4 per frame for multiframe balances quality and processing time
+- Loose hamming distance threshold for production but strict for local use
 - Failed requests include retry logic with exponential backoff
 
 ## Future Improvements
-
 - Add support for video uploads
 - Implement user accounts and search history
 - WebSocket alternative to SSE for bidirectional communication

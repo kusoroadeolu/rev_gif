@@ -7,10 +7,10 @@ spring:
       - image/png
       - image/webp
     bit-resolution: 64
-    expected_frames: 3 # To save costs lol
-    nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this through trial and error(.35 * 64 similar bits, might return some false positives but lesser than this could be too strict)
+    expected_frames: 4
+    nm-hamming-threshold: 0.30 # normalized hamming dist. I landed on this through trial and error(.35 * 64 similar bits, might return some false positives but lesser than this could be too strict)
     gaussian-blur: 3
-    next-frame: 1 # to prevent out of memory errors
+    next-frame: 1
 
 
   datasource:
@@ -40,8 +40,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 5MB #5MB max size
-      max-request-size: 5MB
+      max-file-size: 10MB #5MB max size
+      max-request-size: 10MB
 
 
 api:
