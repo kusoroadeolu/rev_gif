@@ -10,6 +10,8 @@ spring:
     expected_frames: 3 # To save costs lol
     nm-hamming-threshold: 0.35 # normalized hamming dist. I landed on this through trial and error(.35 * 64 similar bits, might return some false positives but lesser than this could be too strict)
     gaussian-blur: 3
+    next-frame: 1 # to prevent out of memory errors
+
 
   datasource:
     driver-class-name: org.postgresql.Driver
@@ -59,7 +61,8 @@ api:
     base-url: https://tenor.googleapis.com/v2/search
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
-    limit: 15
+    limit: 20
+    limit-for-many: 10
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
@@ -75,7 +78,7 @@ web-client:
   response-timeout: 30
   read-write-timeout: 30
   tcp-timeout-millis: 20_000
-  max-bytes-read: 10_485_760 #5 mb
+  max-bytes-read: 15_300_760 #15 mb
   max-retry-attempts: 3
   backoff: 2
 
