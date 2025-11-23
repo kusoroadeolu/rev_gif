@@ -68,7 +68,7 @@ api:
     content-filter: low
     media-filter: gif, mp4 #Only gifs are needed
     limit: 12
-    limit-for-many: 3  #limit when processing multiple frames uploaded by the user
+    limit-for-many: 4  #limit when processing multiple frames uploaded by the user
 
 date-time-pattern: yyyy-MM-dd HH:mm:ss
 
